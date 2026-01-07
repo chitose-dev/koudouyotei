@@ -151,13 +151,27 @@
       font-size:22px;
       font-weight:900;
     }
+    /* 縦線（ヘッダー） */
+    thead th{
+      border-right:1px solid var(--border);
+    }
+    thead th:last-child{
+      border-right:none;
+    }
+
     tbody td{
       border-bottom:1px solid var(--border);
       padding:10px 12px;
       height:74px;
       vertical-align:middle;
       position:relative;
+      /* 縦線（ボディ） */
+      border-right:1px solid var(--border);
     }
+    tbody td:last-child{
+      border-right:none;
+    }
+
     tbody tr:last-child td{ border-bottom:none; }
     .col-name{ width:26%; }
     .col-dest{ width:54%; }
@@ -192,21 +206,14 @@
       justify-content:center;
       gap:8px;
       padding:10px 12px;
-      border-radius:12px; /* 四角寄り */
+      border-radius:12px;
       font-weight:900;
       font-size:20px;
       border:1px solid color-mix(in srgb, var(--text) 14%, transparent);
       box-shadow: 0 6px 14px rgba(0,0,0,.06);
       user-select:none;
     }
-    .chip small{
-      font-size:14px;
-      font-weight:900;
-      opacity:.9;
-    }
-    .chip.dragging{
-      opacity:.6;
-    }
+    .chip.dragging{ opacity:.6; }
 
     /* Right: Poster */
     .poster{ flex:1; display:flex; flex-direction:column; min-height:0; }
@@ -283,7 +290,7 @@
     .mag:active{ cursor:grabbing; transform:scale(.99); }
     .mag.dragging{ opacity:.6; }
 
-    /* Delete drop zone (invisible unless dragging) */
+    /* Delete drop zone (only while dragging) */
     .trash{
       position:fixed;
       left:14px;
@@ -356,7 +363,7 @@
       cursor:pointer;
       display:flex;
       align-items:center;
-      justify-content:space-between;
+      justify-content:flex-start;
       gap:10px;
       user-select:none;
     }
@@ -382,7 +389,7 @@
     }
     input[type="number"]{ width:160px; }
 
-    /* Settings modal */
+    /* Settings modal (tabs) */
     .backdrop{
       position:fixed; inset:0;
       background: rgba(0,0,0,.35);
@@ -393,29 +400,61 @@
       padding:18px;
     }
     .backdrop.open{ display:flex; }
+
     .modal{
       width: 980px;
       max-width: 100%;
       max-height: 92vh;
-      overflow:auto;
+      overflow:hidden;
       background:var(--panel2);
       border:1px solid var(--border);
       border-radius:18px;
       box-shadow: var(--shadow);
+      display:flex;
+      flex-direction:column;
     }
     .modal-head{
-      position:sticky; top:0; z-index:2;
-      background:var(--panel2);
-      border-bottom:1px solid var(--border);
       padding:14px 16px;
       display:flex;
       align-items:center;
       justify-content:space-between;
       gap:12px;
+      border-bottom:1px solid var(--border);
+      background:var(--panel2);
     }
     .modal-head .h{ font-size:20px; font-weight:950; }
+
+    .tabs{
+      display:flex;
+      gap:8px;
+      padding:10px 12px 12px;
+      border-bottom:1px solid var(--border);
+      background:var(--panel2);
+    }
+    .tab{
+      border:1px solid var(--border);
+      background:var(--panel);
+      color:var(--text);
+      padding:10px 14px;
+      border-radius:999px;
+      font-weight:850;
+      cursor:pointer;
+      user-select:none;
+    }
+    .tab.active{
+      background: color-mix(in srgb, var(--accent) 14%, var(--panel));
+      border-color: color-mix(in srgb, var(--accent) 35%, var(--border));
+    }
+
     .modal-body{
       padding:16px;
+      overflow:auto;
+    }
+    .section{
+      display:none;
+      gap:14px;
+    }
+    .section.active{
       display:grid;
       grid-template-columns: 1fr 1fr;
       gap:14px;
@@ -430,6 +469,7 @@
       gap:12px;
     }
     .card h3{ margin:0; font-size:18px; font-weight:950; }
+
     .list{ display:flex; flex-direction:column; gap:8px; }
     .list-item{
       display:flex;
@@ -546,57 +586,78 @@
     <div class="modal" role="dialog" aria-modal="true" aria-label="設定">
       <div class="modal-head">
         <div class="h">設定</div>
-        <div style="display:flex; gap:10px; align-items:center;">
-          <button class="btn primary" id="closeSettingsBtn">閉じる</button>
-        </div>
+        <button class="btn primary" id="closeSettingsBtn">閉じる</button>
+      </div>
+
+      <div class="tabs" id="tabs">
+        <div class="tab active" data-tab="display">表示</div>
+        <div class="tab" data-tab="poster">ポスター</div>
+        <div class="tab" data-tab="magnets">マグネット</div>
       </div>
 
       <div class="modal-body">
-        <div class="card">
-          <h3>表示</h3>
-          <div class="row" style="justify-content:space-between;">
-            <div class="pill">
-              <span class="swatch" style="background:var(--panel)"></span>
-              テーマ
+        <!-- 表示 -->
+        <div class="section active" id="tab-display">
+          <div class="card">
+            <h3>テーマ</h3>
+            <div class="row" style="justify-content:space-between;">
+              <div class="pill">
+                <span class="swatch" style="background:var(--panel)"></span>
+                表示テーマ
+              </div>
+              <button class="btn" id="themeToggleInSettings">ダークに切替</button>
             </div>
-            <button class="btn" id="themeToggleInSettings">ダークに切替</button>
+          </div>
+          <div class="card">
+            <h3>（予約枠）</h3>
+            <div class="muted">必要ならここに表示関連の設定を追加できます</div>
           </div>
         </div>
 
-        <div class="card">
-          <h3>ポスター</h3>
-          <div class="row">
-            <div class="pill">切替(秒)</div>
-            <input type="number" id="posterInterval" min="1" value="6" />
+        <!-- ポスター -->
+        <div class="section" id="tab-poster">
+          <div class="card">
+            <h3>切替</h3>
+            <div class="row">
+              <div class="pill">切替(秒)</div>
+              <input type="number" id="posterInterval" min="1" value="6" />
+            </div>
           </div>
-          <div class="row">
-            <input type="text" id="posterUrl" placeholder="画像URLを追加" />
-            <button class="btn primary" id="addPosterBtn">追加</button>
+          <div class="card">
+            <h3>画像</h3>
+            <div class="row">
+              <input type="text" id="posterUrl" placeholder="画像URLを追加" />
+              <button class="btn primary" id="addPosterBtn">追加</button>
+            </div>
+            <div class="list" id="posterList"></div>
           </div>
-          <div class="list" id="posterList"></div>
         </div>
 
-        <div class="card">
-          <h3>マグネット</h3>
-
-          <div class="row" style="gap:14px;">
-            <div class="pill">名前色 <input type="color" id="colorName" /></div>
-            <div class="pill">車色 <input type="color" id="colorCar" /></div>
-            <div class="pill">行先色 <input type="color" id="colorDest" /></div>
+        <!-- マグネット -->
+        <div class="section" id="tab-magnets">
+          <div class="card">
+            <h3>タイプ別 色</h3>
+            <div class="row" style="gap:14px;">
+              <div class="pill">名前色 <input type="color" id="colorName" /></div>
+              <div class="pill">車色 <input type="color" id="colorCar" /></div>
+              <div class="pill">行先色 <input type="color" id="colorDest" /></div>
+            </div>
           </div>
 
-          <div class="row">
-            <input type="text" id="magValue" placeholder="追加する内容（例: 田中 / 1234 / 白ジムニー / 新宿）" />
-            <select id="magType" class="btn" style="padding:12px 14px;">
-              <option value="name">名前</option>
-              <option value="car">車</option>
-              <option value="dest">行先</option>
-            </select>
-            <input type="color" id="magColor" title="個別色" />
-            <button class="btn primary" id="addMagBtn">追加</button>
+          <div class="card">
+            <h3>追加 / 管理</h3>
+            <div class="row">
+              <input type="text" id="magValue" placeholder="追加する内容" />
+              <select id="magType" class="btn" style="padding:12px 14px;">
+                <option value="name">名前</option>
+                <option value="car">車</option>
+                <option value="dest">行先</option>
+              </select>
+              <input type="color" id="magColor" title="個別色" />
+              <button class="btn primary" id="addMagBtn">追加</button>
+            </div>
+            <div class="list" id="magList"></div>
           </div>
-
-          <div class="list" id="magList"></div>
         </div>
       </div>
     </div>
@@ -624,7 +685,6 @@
     posterIndex: 0,
     posterCountdown: 6,
 
-    // type default colors (editable)
     typeColors: {
       name: '#E8F0FF',
       car:  '#EAF7EF',
@@ -633,7 +693,6 @@
       time: '#F3F4F6'
     },
 
-    // magnets with per-item color
     magnets: {
       name: [
         {label:'田中', color:null},
@@ -660,7 +719,6 @@
       ]
     },
 
-    // table rows: cells hold chips [{type,label,color?}]
     rows: [
       { name: [{type:'name',label:'田中'}], dest: [{type:'dest',label:'新宿'},{type:'car',label:'1234'}], time: '16:30' },
       { name: [{type:'name',label:'佐藤'}], dest: [{type:'dest',label:'現場A'}], time: '15:00' },
@@ -707,16 +765,13 @@
   const tbody = document.getElementById('tbody');
 
   function chipBg(chip){
-    // priority: chip.color > typeColors
-    const base = chip.color || state.typeColors[chip.type] || '#EEF2F7';
-    return base;
+    return chip.color || state.typeColors[chip.type] || '#EEF2F7';
   }
 
   function chipEl(chip, {draggable=false, payload=null} = {}){
     const el = document.createElement('div');
     el.className = 'chip';
     el.style.background = chipBg(chip);
-    el.style.color = 'color-mix(in srgb, var(--text) 92%, transparent)';
     el.textContent = chip.label;
 
     if(draggable){
@@ -747,11 +802,10 @@
         cellDiv.appendChild(ph);
         return;
       }
-      const el = chipEl({type:'time', label:v, color: state.typeColors.time}, {
-        draggable:true,
-        payload:{ kind:'cellChip', row:rowIndex, key:'time' }
-      });
-      cellDiv.appendChild(el);
+      cellDiv.appendChild(chipEl(
+        {type:'time', label:v, color: state.typeColors.time},
+        {draggable:true, payload:{ kind:'cellChip', row:rowIndex, key:'time' }}
+      ));
       return;
     }
 
@@ -764,11 +818,10 @@
       return;
     }
     arr.forEach((c, idx)=>{
-      const el = chipEl(c, {
-        draggable:true,
-        payload:{ kind:'cellChip', row:rowIndex, key, index:idx }
-      });
-      cellDiv.appendChild(el);
+      cellDiv.appendChild(chipEl(
+        c,
+        {draggable:true, payload:{ kind:'cellChip', row:rowIndex, key, index:idx }}
+      ));
     });
   }
 
@@ -782,22 +835,14 @@
     cell.className = 'cell';
     td.appendChild(cell);
 
-    // Tap to edit popover
     td.addEventListener('click', (e)=>{
       e.stopPropagation();
       const rect = td.getBoundingClientRect();
-      if(key === 'time'){
-        openTimePopover(rowIndex, rect);
-      } else {
-        openSelectPopover(rowIndex, key, rect);
-      }
+      if(key === 'time') openTimePopover(rowIndex, rect);
+      else openSelectPopover(rowIndex, key, rect);
     });
 
-    // Drop magnets / chips onto cells
-    td.addEventListener('dragover', (e)=>{
-      e.preventDefault();
-      td.classList.add('drag-over');
-    });
+    td.addEventListener('dragover', (e)=>{ e.preventDefault(); td.classList.add('drag-over'); });
     td.addEventListener('dragleave', ()=> td.classList.remove('drag-over'));
     td.addEventListener('drop', (e)=>{
       e.preventDefault();
@@ -806,31 +851,27 @@
       if(!payload) return;
       const data = JSON.parse(payload);
 
-      // drop from cell chip: move
       if(data.kind === 'cellChip'){
         if(key === 'time'){
-          // time cell only accepts time
           if(data.key !== 'time') return;
           state.rows[rowIndex].time = state.rows[data.row].time;
           state.rows[data.row].time = '';
           renderTable();
           return;
         }
-        if(data.key === 'time') return; // time chip can't go into name/dest
+        if(data.key === 'time') return;
 
-        // move chip between cells
         const moved = state.rows[data.row][data.key].splice(data.index,1)[0];
         state.rows[rowIndex][key].push(moved);
         renderTable();
         return;
       }
 
-      // drop from magnet: copy into cell
-      if(key === 'time'){
-        return; // time cell does not accept magnets
+      if(data.kind === 'magnet'){
+        if(key === 'time') return;
+        state.rows[rowIndex][key].push({type:data.type, label:data.label, color:data.color || null});
+        renderTable();
       }
-      state.rows[rowIndex][key].push({type:data.type, label:data.label, color:data.color || null});
-      renderTable();
     });
 
     renderCell(cell, rowIndex, key);
@@ -891,11 +932,8 @@
     state.magnets.dest.forEach(item=> addMag(dests,'dest',item));
   }
 
-  // ---- Trash drop zone (delete when dropped) ----
-  trash.addEventListener('dragover', (e)=>{
-    e.preventDefault();
-    trash.classList.add('over');
-  });
+  // ---- Trash (delete when dropped) ----
+  trash.addEventListener('dragover', (e)=>{ e.preventDefault(); trash.classList.add('over'); });
   trash.addEventListener('dragleave', ()=> trash.classList.remove('over'));
   trash.addEventListener('drop', (e)=>{
     e.preventDefault();
@@ -906,14 +944,10 @@
     const data = JSON.parse(payload);
 
     if(data.kind === 'cellChip'){
-      if(data.key === 'time'){
-        state.rows[data.row].time = '';
-      } else {
-        state.rows[data.row][data.key].splice(data.index,1);
-      }
+      if(data.key === 'time') state.rows[data.row].time = '';
+      else state.rows[data.row][data.key].splice(data.index,1);
       renderTable();
     }
-    // magnetは削除しない（デモとしては残す）。必要ならここで magnets 配列から消す仕様に変更可。
   });
 
   // ---- Settings modal ----
@@ -927,13 +961,28 @@
     renderSettingsLists();
     document.getElementById('posterInterval').value = state.posterIntervalSec;
   }
-  function closeSettings(){
-    backdrop.classList.remove('open');
-  }
+  function closeSettings(){ backdrop.classList.remove('open'); }
+
   openSettingsBtn.addEventListener('click', openSettings);
   closeSettingsBtn.addEventListener('click', closeSettings);
   posterZone.addEventListener('click', openSettings);
   backdrop.addEventListener('click', (e)=>{ if(e.target === backdrop) closeSettings(); });
+
+  // Tabs
+  const tabs = document.getElementById('tabs');
+  function setActiveTab(key){
+    tabs.querySelectorAll('.tab').forEach(t=>{
+      t.classList.toggle('active', t.dataset.tab === key);
+    });
+    document.querySelectorAll('.section').forEach(sec=>{
+      sec.classList.toggle('active', sec.id === `tab-${key}`);
+    });
+  }
+  tabs.addEventListener('click', (e)=>{
+    const el = e.target.closest('.tab');
+    if(!el) return;
+    setActiveTab(el.dataset.tab);
+  });
 
   // theme toggle in settings
   document.getElementById('themeToggleInSettings').addEventListener('click', ()=>{
@@ -973,14 +1022,13 @@
   colorCar.addEventListener('input',  ()=>{ state.typeColors.car  = colorCar.value;  renderMagnets(); renderTable(); });
   colorDest.addEventListener('input', ()=>{ state.typeColors.dest = colorDest.value; renderMagnets(); renderTable(); });
 
-  // magnet add (with per-item color)
+  // magnet add (per-item color)
   const addMagBtn = document.getElementById('addMagBtn');
   const magValueInput = document.getElementById('magValue');
   const magTypeSelect = document.getElementById('magType');
   const magColorInput = document.getElementById('magColor');
   const magList = document.getElementById('magList');
 
-  // init color picker for new magnet
   function syncMagColorDefault(){
     const t = magTypeSelect.value;
     magColorInput.value = state.typeColors[t] || '#EEF2F7';
@@ -1021,7 +1069,7 @@
       posterList.appendChild(item);
     });
 
-    // magnets list (remove + per-item color)
+    // magnets list
     magList.innerHTML = '';
     [['name','名前'],['car','車'],['dest','行先']].forEach(([type, label])=>{
       state.magnets[type].forEach((it, idx)=>{
@@ -1063,7 +1111,6 @@
 
         row.appendChild(left);
         row.appendChild(right);
-
         magList.appendChild(row);
       });
     });
@@ -1138,7 +1185,7 @@
     times.forEach(t=>{
       const btn = document.createElement('div');
       btn.className = 'pick';
-      btn.innerHTML = `<div style="font-weight:950;">${t}</div>`;
+      btn.textContent = t;
       btn.addEventListener('click', ()=>{
         state.rows[rowIndex].time = t;
         renderTable();
@@ -1191,8 +1238,15 @@
     list.slice(0, 12).forEach(item=>{
       const b = document.createElement('div');
       b.className = 'pick';
-      const sw = `<span class="swatch" style="background:${escapeHtml(item.color || state.typeColors[item.type] || '#EEF2F7')}"></span>`;
-      b.innerHTML = `<div style="display:flex;align-items:center;gap:10px;">${sw}<span style="font-weight:950;">${escapeHtml(item.label)}</span></div>`;
+      const sw = document.createElement('span');
+      sw.className = 'swatch';
+      sw.style.background = item.color || state.typeColors[item.type] || '#EEF2F7';
+      const t = document.createElement('span');
+      t.style.fontWeight = '950';
+      t.textContent = item.label;
+      b.appendChild(sw);
+      b.appendChild(t);
+
       b.addEventListener('click', ()=>{
         state.rows[rowIndex][key].push({type:item.type, label:item.label, color:item.color || null});
         renderTable();
@@ -1217,7 +1271,6 @@
     placePopoverNearRect(rect);
   }
 
-  // ---- helpers ----
   function escapeHtml(s){
     return String(s)
       .replaceAll('&','&amp;')
