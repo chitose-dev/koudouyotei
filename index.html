@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>行動予定表（デモ）</title>
   <style>
     :root{
@@ -12,7 +12,7 @@
       --text:#111827;
       --muted:#6b7280;
       --border:#e5e7eb;
-      --shadow: 0 10px 30px rgba(0,0,0,.08);
+      --shadow: 0 14px 40px rgba(0,0,0,.10);
       --accent:#2563eb;
     }
     [data-theme="dark"]{
@@ -22,10 +22,9 @@
       --text:#e5e7eb;
       --muted:#9ca3af;
       --border:#253047;
-      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --shadow: 0 16px 46px rgba(0,0,0,.42);
       --accent:#60a5fa;
     }
-
     *{ box-sizing:border-box; }
     html,body{ height:100%; }
     body{
@@ -49,7 +48,7 @@
       border-radius:18px;
       overflow:hidden;
       display:flex; flex-direction:column;
-      box-shadow: var(--shadow);
+      box-shadow:var(--shadow);
       transform-origin:center center;
     }
     @media (max-aspect-ratio: 16/9){
@@ -70,7 +69,7 @@
     }
     .title{
       font-size:34px;
-      font-weight:850;
+      font-weight:900;
       letter-spacing:.02em;
     }
     .header-right{
@@ -81,7 +80,7 @@
     .clock{
       font-size:22px;
       color:var(--muted);
-      font-weight:650;
+      font-weight:800;
       white-space:nowrap;
     }
     .btn{
@@ -90,41 +89,24 @@
       color:var(--text);
       padding:10px 14px;
       border-radius:12px;
-      font-weight:750;
+      font-weight:850;
       cursor:pointer;
       user-select:none;
       transition: transform .06s ease, background .2s ease;
     }
-    .btn:active{ transform: scale(.98); }
+    .btn:active{ transform:scale(.98); }
     .btn.primary{
       background:var(--accent);
       border-color:transparent;
-      color:white;
+      color:#fff;
     }
 
     .main{
       flex:1;
-      display:flex;
+      display:grid;
+      grid-template-columns: 1fr 1fr; /* 左:表 / 右:情報 */
       gap:14px;
       padding:14px;
-      min-height:0;
-    }
-    .left{
-      flex: 0 0 70%;
-      background:var(--panel2);
-      border:1px solid var(--border);
-      border-radius:16px;
-      overflow:hidden;
-      display:flex;
-      flex-direction:column;
-      min-width:0;
-    }
-    .right{
-      flex: 0 0 30%;
-      display:flex;
-      flex-direction:column;
-      gap:14px;
-      min-width:0;
       min-height:0;
     }
     .panel{
@@ -136,7 +118,10 @@
       min-height:0;
     }
 
-    /* Table */
+    /* Left: Table */
+    .left{ display:flex; flex-direction:column; min-height:0; }
+    .table-wrap{ flex:1; overflow:auto; }
+
     table{
       width:100%;
       border-collapse:collapse;
@@ -149,30 +134,21 @@
       border-bottom:1px solid var(--border);
       padding:14px 16px;
       font-size:22px;
-      font-weight:900;
-    }
-    /* 縦線（ヘッダー） */
-    thead th{
+      font-weight:950;
       border-right:1px solid var(--border);
     }
-    thead th:last-child{
-      border-right:none;
-    }
-
+    thead th:last-child{ border-right:none; }
     tbody td{
       border-bottom:1px solid var(--border);
+      border-right:1px solid var(--border);
       padding:10px 12px;
       height:74px;
       vertical-align:middle;
       position:relative;
-      /* 縦線（ボディ） */
-      border-right:1px solid var(--border);
     }
-    tbody td:last-child{
-      border-right:none;
-    }
-
+    tbody td:last-child{ border-right:none; }
     tbody tr:last-child td{ border-bottom:none; }
+
     .col-name{ width:26%; }
     .col-dest{ width:54%; }
     .col-time{ width:20%; }
@@ -185,149 +161,118 @@
       flex-wrap:wrap;
       overflow:hidden;
     }
-    .cell.placeholder{
-      color:var(--muted);
-      font-weight:650;
-    }
-    .droppable{
-      outline: 2px dashed transparent;
-      outline-offset: -6px;
-      border-radius:12px;
-    }
-    .droppable.drag-over{
-      outline-color: var(--accent);
-      background: color-mix(in srgb, var(--accent) 10%, transparent);
-    }
 
-    /* Square magnets (table chips) */
+    /* Square chips in cells */
     .chip{
       display:inline-flex;
       align-items:center;
       justify-content:center;
-      gap:8px;
       padding:10px 12px;
       border-radius:12px;
-      font-weight:900;
+      font-weight:950;
       font-size:20px;
       border:1px solid color-mix(in srgb, var(--text) 14%, transparent);
       box-shadow: 0 6px 14px rgba(0,0,0,.06);
       user-select:none;
-    }
-    .chip.dragging{ opacity:.6; }
-
-    /* Right: Poster */
-    .poster{ flex:1; display:flex; flex-direction:column; min-height:0; }
-    .poster-zone{
-      flex:1;
-      position:relative;
       cursor:pointer;
-      user-select:none;
-      background: linear-gradient(135deg,
+      max-width:100%;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .chip.time{ cursor:default; }
+    .chip:hover{ filter:brightness(0.98); }
+
+    /* Right: Info Zone */
+    .right{
+      display:flex;
+      flex-direction:column;
+      min-height:0;
+      gap:14px;
+    }
+    .ads{
+      flex:1;
+      display:flex;
+      flex-direction:column;
+      min-height:0;
+    }
+    .ads-row{
+      flex:1;
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap:12px;
+      padding:12px;
+      min-height:0;
+    }
+    .ad-card{
+      border:1px solid var(--border);
+      border-radius:14px;
+      overflow:hidden;
+      background:linear-gradient(135deg,
         color-mix(in srgb, var(--panel) 80%, transparent),
         color-mix(in srgb, var(--panel2) 80%, transparent)
       );
-      display:flex;
-      align-items:center;
-      justify-content:center;
       min-height:0;
+      cursor:pointer;
+      user-select:none;
     }
-    .poster-zone img{
+    .ad-card img{
       width:100%;
       height:100%;
       object-fit:cover;
       display:block;
     }
 
-    /* Right: Magnets */
-    .magnets{ flex:1; display:flex; flex-direction:column; min-height:0; }
-    .magnets-body{
+    .info{
       flex:1;
-      display:grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap:0;
-      min-height:0;
-    }
-    .mag-col{
-      border-right:1px solid var(--border);
-      padding:12px;
-      min-height:0;
       display:flex;
       flex-direction:column;
-      gap:10px;
-    }
-    .mag-col:last-child{ border-right:none; }
-    .mag-title{
-      font-weight:900;
-      font-size:18px;
-      color:var(--muted);
-      letter-spacing:.02em;
-    }
-    .mag-grid{
-      flex:1;
       min-height:0;
-      display:grid;
-      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-      grid-auto-rows: minmax(64px, auto);
-      gap:10px;
-      align-content:start;
-      overflow:auto;
-      padding-right:6px;
     }
-    .mag{
-      border:1px solid color-mix(in srgb, var(--text) 14%, transparent);
-      border-radius:14px;
-      padding:12px 10px;
-      font-weight:950;
-      font-size:22px;
+    .info-inner{
+      height:100%;
+      padding:26px;
       display:flex;
-      align-items:center;
+      flex-direction:column;
       justify-content:center;
-      cursor:grab;
-      user-select:none;
-      box-shadow: 0 6px 14px rgba(0,0,0,.06);
-      background: var(--panel);
+      gap:14px;
+      background:
+        radial-gradient(900px 500px at 30% 30%,
+          color-mix(in srgb, var(--accent) 10%, transparent),
+          transparent 60%),
+        linear-gradient(180deg, var(--panel2), var(--bg));
     }
-    .mag:active{ cursor:grabbing; transform:scale(.99); }
-    .mag.dragging{ opacity:.6; }
-
-    /* Delete drop zone (only while dragging) */
-    .trash{
-      position:fixed;
-      left:14px;
-      bottom:14px;
-      width:240px;
-      height:84px;
-      border-radius:16px;
-      border:1px dashed color-mix(in srgb, var(--text) 20%, transparent);
-      background: color-mix(in srgb, var(--bg) 70%, transparent);
-      display:none;
-      align-items:center;
-      justify-content:center;
-      z-index:900;
+    .info-title{
+      font-size:28px;
+      font-weight:950;
+      letter-spacing:.02em;
       color:var(--muted);
-      font-weight:850;
     }
-    .trash.show{ display:flex; }
-    .trash.over{
-      border-color: var(--accent);
-      color: var(--accent);
-      background: color-mix(in srgb, var(--accent) 10%, transparent);
+    .info-text{
+      font-size:54px;
+      font-weight:950;
+      line-height:1.25;
+      letter-spacing:.01em;
+      white-space:pre-wrap;
+      word-break:break-word;
     }
 
-    /* Popovers */
+    /* Popover picker */
     .popover{
       position:fixed;
-      z-index:1000;
-      width:480px;
+      z-index:1100;
+      width:880px;
       max-width: calc(100vw - 24px);
+      max-height: calc(100vh - 24px);
       background:var(--panel2);
       border:1px solid var(--border);
-      border-radius:16px;
+      border-radius:18px;
       box-shadow: var(--shadow);
       overflow:hidden;
+      display:none;
     }
     .pop-head{
-      padding:12px 14px;
+      padding:14px 16px;
       background:var(--panel);
       border-bottom:1px solid var(--border);
       display:flex;
@@ -343,53 +288,154 @@
       border:1px solid var(--border);
       background:var(--panel2);
       border-radius:12px;
-      padding:8px 10px;
+      padding:10px 12px;
       cursor:pointer;
       font-weight:900;
     }
-    .pop-body{ padding:14px; display:flex; flex-direction:column; gap:12px; }
-    .pick-grid{
+    .pop-body{
       display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:10px;
+      grid-template-columns: 1fr 56px; /* list + kana index */
+      gap:0;
+      min-height:0;
+      height:560px;
     }
-    .pick{
-      border:1px solid var(--border);
-      background:var(--panel);
-      border-radius:14px;
-      padding:12px;
-      font-weight:950;
-      font-size:18px;
-      cursor:pointer;
+    .pop-main{
       display:flex;
-      align-items:center;
-      justify-content:flex-start;
-      gap:10px;
-      user-select:none;
+      flex-direction:column;
+      min-height:0;
+      padding:14px;
+      gap:12px;
     }
-    .pick:active{ transform:scale(.99); }
-    .muted{ color:var(--muted); font-weight:800; }
-
-    .row{
+    .search-row{
       display:flex;
       gap:10px;
       align-items:center;
-      flex-wrap:wrap;
     }
-    input[type="text"], input[type="number"]{
+    input[type="text"]{
+      width:100%;
       background:var(--panel2);
       color:var(--text);
       border:1px solid var(--border);
       border-radius:12px;
       padding:12px 12px;
       font-size:16px;
-      font-weight:700;
+      font-weight:750;
       outline:none;
-      width:100%;
     }
-    input[type="number"]{ width:160px; }
+    .mini{
+      font-size:14px;
+      color:var(--muted);
+      font-weight:850;
+    }
 
-    /* Settings modal (tabs) */
+    .list{
+      flex:1;
+      min-height:0;
+      overflow:auto;
+      border:1px solid var(--border);
+      border-radius:14px;
+      background: color-mix(in srgb, var(--panel) 55%, transparent);
+    }
+    .group{
+      padding:10px 12px 14px;
+      border-bottom:1px solid var(--border);
+    }
+    .group:last-child{ border-bottom:none; }
+    .group-title{
+      position:sticky;
+      top:0;
+      background: color-mix(in srgb, var(--panel2) 86%, transparent);
+      backdrop-filter: blur(6px);
+      border:1px solid color-mix(in srgb, var(--border) 65%, transparent);
+      border-radius:12px;
+      padding:8px 10px;
+      font-weight:950;
+      width:max-content;
+      margin:6px 0 10px;
+    }
+    .items{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap:10px;
+    }
+    .pick{
+      border:1px solid var(--border);
+      background:var(--panel2);
+      border-radius:14px;
+      padding:12px;
+      font-weight:950;
+      font-size:18px;
+      cursor:pointer;
+      user-select:none;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-height:56px;
+    }
+    .pick:active{ transform:scale(.99); }
+    .swatch{
+      width:18px; height:18px;
+      border-radius:6px;
+      border:1px solid color-mix(in srgb, var(--text) 18%, transparent);
+      flex:0 0 auto;
+    }
+    .pick-text{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+      min-width:0;
+    }
+    .pick-text .label{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .pick-text .yomi{
+      font-size:12px;
+      color:var(--muted);
+      font-weight:850;
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    }
+
+    .kana{
+      border-left:1px solid var(--border);
+      background: color-mix(in srgb, var(--panel) 55%, transparent);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:flex-start;
+      gap:10px;
+      padding:12px 8px;
+    }
+    .kana a{
+      width:40px;
+      height:40px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border-radius:12px;
+      border:1px solid var(--border);
+      background:var(--panel2);
+      color:var(--text);
+      text-decoration:none;
+      font-weight:950;
+      user-select:none;
+      cursor:pointer;
+    }
+    .kana a:active{ transform:scale(.98); }
+
+    .actions{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:flex-end;
+      padding:14px;
+      border-top:1px solid var(--border);
+      background:var(--panel2);
+    }
+    .btn.danger{
+      border-color: color-mix(in srgb, #ef4444 45%, var(--border));
+      background: color-mix(in srgb, #ef4444 10%, transparent);
+      color: #ef4444;
+    }
+
+    /* Settings (tabs) */
     .backdrop{
       position:fixed; inset:0;
       background: rgba(0,0,0,.35);
@@ -400,9 +446,8 @@
       padding:18px;
     }
     .backdrop.open{ display:flex; }
-
     .modal{
-      width: 980px;
+      width: 1100px;
       max-width: 100%;
       max-height: 92vh;
       overflow:hidden;
@@ -423,7 +468,6 @@
       background:var(--panel2);
     }
     .modal-head .h{ font-size:20px; font-weight:950; }
-
     .tabs{
       display:flex;
       gap:8px;
@@ -437,7 +481,7 @@
       color:var(--text);
       padding:10px 14px;
       border-radius:999px;
-      font-weight:850;
+      font-weight:900;
       cursor:pointer;
       user-select:none;
     }
@@ -445,15 +489,11 @@
       background: color-mix(in srgb, var(--accent) 14%, var(--panel));
       border-color: color-mix(in srgb, var(--accent) 35%, var(--border));
     }
-
     .modal-body{
       padding:16px;
       overflow:auto;
     }
-    .section{
-      display:none;
-      gap:14px;
-    }
+    .section{ display:none; }
     .section.active{
       display:grid;
       grid-template-columns: 1fr 1fr;
@@ -469,8 +509,36 @@
       gap:12px;
     }
     .card h3{ margin:0; font-size:18px; font-weight:950; }
-
-    .list{ display:flex; flex-direction:column; gap:8px; }
+    textarea{
+      width:100%;
+      min-height:220px;
+      resize:vertical;
+      background:var(--panel2);
+      color:var(--text);
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:12px;
+      font-size:16px;
+      font-weight:750;
+      outline:none;
+      line-height:1.5;
+    }
+    input[type="number"]{
+      width:160px;
+      background:var(--panel2);
+      color:var(--text);
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:12px;
+      font-size:16px;
+      font-weight:750;
+      outline:none;
+    }
+    .list2{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
     .list-item{
       display:flex;
       align-items:center;
@@ -491,8 +559,8 @@
       padding:6px 10px;
       border-radius:12px;
       user-select:none;
+      flex:0 0 auto;
     }
-
     .pill{
       display:inline-flex;
       align-items:center;
@@ -502,12 +570,6 @@
       border-radius:999px;
       padding:10px 12px;
       font-weight:850;
-    }
-    .swatch{
-      width:18px; height:18px;
-      border-radius:6px;
-      border:1px solid color-mix(in srgb, var(--text) 18%, transparent);
-      display:inline-block;
     }
     input[type="color"]{
       width:52px; height:42px;
@@ -519,217 +581,264 @@
     }
   </style>
 </head>
+
 <body>
-  <div class="stage-wrap">
-    <div class="stage" id="stage" data-theme="light">
-      <header>
-        <div class="title">行動予定表</div>
-        <div class="header-right">
-          <div class="clock" id="clock">--</div>
-          <button class="btn primary" id="openSettingsBtn">設定</button>
+<div class="stage-wrap">
+  <div class="stage" id="stage" data-theme="light">
+    <header>
+      <div class="title">行動予定表</div>
+      <div class="header-right">
+        <div class="clock" id="clock">--</div>
+        <button class="btn primary" id="openSettingsBtn">設定</button>
+      </div>
+    </header>
+
+    <div class="main">
+      <!-- LEFT -->
+      <section class="panel left">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th class="col-name">氏名</th>
+                <th class="col-dest">行先</th>
+                <th class="col-time">帰社時間</th>
+              </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+          </table>
         </div>
-      </header>
+      </section>
 
-      <div class="main">
-        <!-- LEFT: TABLE -->
-        <section class="left">
-          <div style="flex:1; overflow:auto;">
-            <table id="scheduleTable">
-              <thead>
-                <tr>
-                  <th class="col-name">氏名</th>
-                  <th class="col-dest">行先</th>
-                  <th class="col-time">帰社時間</th>
-                </tr>
-              </thead>
-              <tbody id="tbody"></tbody>
-            </table>
+      <!-- RIGHT -->
+      <section class="right">
+        <div class="panel ads" id="adsPanel" title="設定を開く">
+          <div class="ads-row" id="adsRow"></div>
+        </div>
+
+        <div class="panel info">
+          <div class="info-inner">
+            <div class="info-title" id="infoTitle">作業の注意</div>
+            <div class="info-text" id="infoText"></div>
           </div>
-        </section>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
 
-        <!-- RIGHT -->
-        <aside class="right">
-          <!-- Poster -->
-          <section class="panel poster">
-            <div class="poster-zone" id="posterZone" title="設定を開く">
-              <img id="posterImg" alt="poster" />
-            </div>
-          </section>
+<!-- Picker Popover -->
+<div class="popover" id="picker"></div>
 
-          <!-- Magnets -->
-          <section class="panel magnets">
-            <div class="magnets-body">
-              <div class="mag-col">
-                <div class="mag-title">名前</div>
-                <div class="mag-grid" id="magNames"></div>
-              </div>
-              <div class="mag-col">
-                <div class="mag-title">車</div>
-                <div class="mag-grid" id="magCars"></div>
-              </div>
-              <div class="mag-col">
-                <div class="mag-title">行先</div>
-                <div class="mag-grid" id="magDests"></div>
-              </div>
-            </div>
-          </section>
-        </aside>
+<!-- Settings Modal -->
+<div class="backdrop" id="backdrop">
+  <div class="modal" role="dialog" aria-modal="true" aria-label="設定">
+    <div class="modal-head">
+      <div class="h">設定</div>
+      <button class="btn primary" id="closeSettingsBtn">閉じる</button>
+    </div>
+
+    <div class="tabs" id="tabs">
+      <div class="tab active" data-tab="display">表示</div>
+      <div class="tab" data-tab="ads">広告</div>
+      <div class="tab" data-tab="items">項目（読み方）</div>
+      <div class="tab" data-tab="info">情報表示</div>
+    </div>
+
+    <div class="modal-body">
+      <!-- 表示 -->
+      <div class="section active" id="tab-display">
+        <div class="card">
+          <h3>テーマ</h3>
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+            <div class="pill">ダークモード</div>
+            <button class="btn" id="themeToggleInSettings">ダークに切替</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>チップ色</h3>
+          <div style="display:flex; flex-wrap:wrap; gap:14px;">
+            <div class="pill">名前 <input type="color" id="colorName" /></div>
+            <div class="pill">車 <input type="color" id="colorCar" /></div>
+            <div class="pill">行先 <input type="color" id="colorDest" /></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 広告 -->
+      <div class="section" id="tab-ads">
+        <div class="card">
+          <h3>切替</h3>
+          <div style="display:flex; gap:10px; align-items:center;">
+            <div class="pill">切替(秒)</div>
+            <input type="number" id="adsInterval" min="1" value="6" />
+          </div>
+          <div class="mini">上段の広告カード3枚が、登録URLから順に自動で切り替わります（デモ仕様）。</div>
+        </div>
+
+        <div class="card">
+          <h3>広告画像URL</h3>
+          <div style="display:flex; gap:10px; align-items:center;">
+            <input type="text" id="adUrl" placeholder="画像URLを追加" />
+            <button class="btn primary" id="addAdBtn">追加</button>
+          </div>
+          <div class="list2" id="adList"></div>
+        </div>
+      </div>
+
+      <!-- 項目（読み方） -->
+      <div class="section" id="tab-items">
+        <div class="card">
+          <h3>追加</h3>
+          <div style="display:flex; gap:10px; align-items:center;">
+            <input type="text" id="itemLabel" placeholder="表示（例: 田中 / 1234 / 白ジムニー / 新宿）" />
+          </div>
+          <div style="display:flex; gap:10px; align-items:center;">
+            <input type="text" id="itemYomi" placeholder="読み方（例: たなか / いちにさんよん / しろじむにー / しんじゅく）" />
+          </div>
+          <div style="display:flex; gap:10px; align-items:center;">
+            <select id="itemType" class="btn" style="padding:12px 14px;">
+              <option value="name">名前</option>
+              <option value="car">車</option>
+              <option value="dest">行先</option>
+            </select>
+            <input type="color" id="itemColor" title="個別色" />
+            <button class="btn primary" id="addItemBtn">追加</button>
+          </div>
+          <div class="mini">読み方の先頭で「あ/か/さ…」に分類され、選択ポップアップの索引ジャンプが効きます。</div>
+        </div>
+
+        <div class="card">
+          <h3>一覧</h3>
+          <div class="list2" id="itemList"></div>
+        </div>
+      </div>
+
+      <!-- 情報表示 -->
+      <div class="section" id="tab-info">
+        <div class="card">
+          <h3>タイトル</h3>
+          <input type="text" id="infoTitleInput" />
+          <h3 style="margin-top:6px;">本文</h3>
+          <textarea id="infoTextInput"></textarea>
+          <button class="btn primary" id="applyInfoBtn">反映</button>
+        </div>
+
+        <div class="card">
+          <h3>（予約枠）</h3>
+          <div class="mini">将来的に「今日の予定」「天気」「安全標語」などの拡張も入れられます。</div>
+        </div>
       </div>
     </div>
   </div>
-
-  <!-- Trash drop zone -->
-  <div class="trash" id="trash">削除</div>
-
-  <!-- Settings Modal -->
-  <div class="backdrop" id="backdrop">
-    <div class="modal" role="dialog" aria-modal="true" aria-label="設定">
-      <div class="modal-head">
-        <div class="h">設定</div>
-        <button class="btn primary" id="closeSettingsBtn">閉じる</button>
-      </div>
-
-      <div class="tabs" id="tabs">
-        <div class="tab active" data-tab="display">表示</div>
-        <div class="tab" data-tab="poster">ポスター</div>
-        <div class="tab" data-tab="magnets">マグネット</div>
-      </div>
-
-      <div class="modal-body">
-        <!-- 表示 -->
-        <div class="section active" id="tab-display">
-          <div class="card">
-            <h3>テーマ</h3>
-            <div class="row" style="justify-content:space-between;">
-              <div class="pill">
-                <span class="swatch" style="background:var(--panel)"></span>
-                表示テーマ
-              </div>
-              <button class="btn" id="themeToggleInSettings">ダークに切替</button>
-            </div>
-          </div>
-          <div class="card">
-            <h3>（予約枠）</h3>
-            <div class="muted">必要ならここに表示関連の設定を追加できます</div>
-          </div>
-        </div>
-
-        <!-- ポスター -->
-        <div class="section" id="tab-poster">
-          <div class="card">
-            <h3>切替</h3>
-            <div class="row">
-              <div class="pill">切替(秒)</div>
-              <input type="number" id="posterInterval" min="1" value="6" />
-            </div>
-          </div>
-          <div class="card">
-            <h3>画像</h3>
-            <div class="row">
-              <input type="text" id="posterUrl" placeholder="画像URLを追加" />
-              <button class="btn primary" id="addPosterBtn">追加</button>
-            </div>
-            <div class="list" id="posterList"></div>
-          </div>
-        </div>
-
-        <!-- マグネット -->
-        <div class="section" id="tab-magnets">
-          <div class="card">
-            <h3>タイプ別 色</h3>
-            <div class="row" style="gap:14px;">
-              <div class="pill">名前色 <input type="color" id="colorName" /></div>
-              <div class="pill">車色 <input type="color" id="colorCar" /></div>
-              <div class="pill">行先色 <input type="color" id="colorDest" /></div>
-            </div>
-          </div>
-
-          <div class="card">
-            <h3>追加 / 管理</h3>
-            <div class="row">
-              <input type="text" id="magValue" placeholder="追加する内容" />
-              <select id="magType" class="btn" style="padding:12px 14px;">
-                <option value="name">名前</option>
-                <option value="car">車</option>
-                <option value="dest">行先</option>
-              </select>
-              <input type="color" id="magColor" title="個別色" />
-              <button class="btn primary" id="addMagBtn">追加</button>
-            </div>
-            <div class="list" id="magList"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Popover -->
-  <div class="popover" id="popover" style="display:none;"></div>
+</div>
 
 <script>
 (() => {
   const stage = document.getElementById('stage');
-  const clockEl = document.getElementById('clock');
-  const trash = document.getElementById('trash');
 
-  // ---- State ----
+  // --------- Utilities ---------
+  const pad2 = n => String(n).padStart(2,'0');
+  const jpDow = ['日','月','火','水','木','金','土'];
+
+  // ひらがな・カタカナをざっくり正規化（デモ用）
+  function toHiragana(str){
+    return (str || '').trim().replace(/[\u30A1-\u30F6]/g, ch =>
+      String.fromCharCode(ch.charCodeAt(0) - 0x60)
+    );
+  }
+  function headKanaGroup(yomi){
+    const s = toHiragana(yomi || '').trim();
+    const c = s[0] || '';
+    const groups = [
+      {k:'あ', re:/^[ぁ-お]/},
+      {k:'か', re:/^[か-ご]/},
+      {k:'さ', re:/^[さ-ぞ]/},
+      {k:'た', re:/^[た-ど]/},
+      {k:'な', re:/^[な-の]/},
+      {k:'は', re:/^[は-ぽ]/},
+      {k:'ま', re:/^[ま-も]/},
+      {k:'や', re:/^[ゃ-よ]/},
+      {k:'ら', re:/^[ら-ろ]/},
+      {k:'わ', re:/^[ゎ-ん]/},
+    ];
+    const hit = groups.find(g => g.re.test(c));
+    return hit ? hit.k : '#';
+  }
+  function escapeHtml(s){
+    return String(s ?? '')
+      .replaceAll('&','&amp;')
+      .replaceAll('<','&lt;')
+      .replaceAll('>','&gt;')
+      .replaceAll('"','&quot;')
+      .replaceAll("'","&#039;");
+  }
+
+  // --------- State ---------
   const state = {
-    theme: 'light',
-
-    posters: [
-      'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1600&q=80',
-      'https://images.unsplash.com/photo-1525182008055-f88b95ff7980?auto=format&fit=crop&w=1600&q=80',
-      'https://images.unsplash.com/photo-1553877522-43269d4ea984?auto=format&fit=crop&w=1600&q=80'
-    ],
-    posterIntervalSec: 6,
-    posterIndex: 0,
-    posterCountdown: 6,
-
-    typeColors: {
-      name: '#E8F0FF',
-      car:  '#EAF7EF',
-      dest: '#FFF2E7',
-      custom: '#EEF2F7',
-      time: '#F3F4F6'
+    theme:'light',
+    typeColors:{
+      name:'#E8F0FF',
+      car:'#EAF7EF',
+      dest:'#FFF2E7',
+      custom:'#EEF2F7',
+      time:'#F3F4F6'
     },
 
-    magnets: {
-      name: [
-        {label:'田中', color:null},
-        {label:'佐藤', color:null},
-        {label:'鈴木', color:null},
-        {label:'高橋', color:null},
-        {label:'伊藤', color:null},
-        {label:'渡辺', color:null},
+    items:{
+      name:[
+        {label:'田中', yomi:'たなか', color:null},
+        {label:'佐藤', yomi:'さとう', color:null},
+        {label:'鈴木', yomi:'すずき', color:null},
+        {label:'高橋', yomi:'たかはし', color:null},
+        {label:'伊藤', yomi:'いとう', color:null},
+        {label:'渡辺', yomi:'わたなべ', color:null},
       ],
-      car: [
-        {label:'1234', color:null},
-        {label:'5678', color:null},
-        {label:'白ジムニー', color:null},
-        {label:'黒ハイエース', color:null},
-        {label:'9988', color:null},
+      car:[
+        {label:'1234', yomi:'いちにさんよん', color:null},
+        {label:'5678', yomi:'ごーろくななはち', color:null},
+        {label:'白ジムニー', yomi:'しろじむにー', color:null},
+        {label:'黒ハイエース', yomi:'くろはいえーす', color:null},
       ],
-      dest: [
-        {label:'新宿', color:null},
-        {label:'渋谷', color:null},
-        {label:'品川', color:null},
-        {label:'現場A', color:null},
-        {label:'現場B', color:null},
-        {label:'倉庫', color:null},
+      dest:[
+        {label:'新宿', yomi:'しんじゅく', color:null},
+        {label:'渋谷', yomi:'しぶや', color:null},
+        {label:'品川', yomi:'しながわ', color:null},
+        {label:'現場A', yomi:'げんばえー', color:null},
+        {label:'倉庫', yomi:'そうこ', color:null},
       ]
     },
 
-    rows: [
-      { name: [{type:'name',label:'田中'}], dest: [{type:'dest',label:'新宿'},{type:'car',label:'1234'}], time: '16:30' },
-      { name: [{type:'name',label:'佐藤'}], dest: [{type:'dest',label:'現場A'}], time: '15:00' },
-      { name: [{type:'name',label:'鈴木'}], dest: [{type:'car',label:'白ジムニー'},{type:'dest',label:'渋谷'}], time: '' },
+    rows:[
+      { name:[{type:'name', label:'田中', yomi:'たなか', color:null}],
+        dest:[{type:'dest', label:'新宿', yomi:'しんじゅく', color:null}, {type:'car', label:'1234', yomi:'いちにさんよん', color:null}],
+        time:'16:30' },
+      { name:[{type:'name', label:'佐藤', yomi:'さとう', color:null}],
+        dest:[{type:'dest', label:'現場A', yomi:'げんばえー', color:null}],
+        time:'15:00' },
+      { name:[{type:'name', label:'鈴木', yomi:'すずき', color:null}],
+        dest:[{type:'car', label:'白ジムニー', yomi:'しろじむにー', color:null}, {type:'dest', label:'渋谷', yomi:'しぶや', color:null}],
+        time:'' },
       ...Array.from({length:9}).map(()=>({name:[],dest:[],time:''}))
-    ]
+    ],
+
+    ads:[
+      'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1600&q=80',
+      'https://images.unsplash.com/photo-1525182008055-f88b95ff7980?auto=format&fit=crop&w=1600&q=80',
+      'https://images.unsplash.com/photo-1553877522-43269d4ea984?auto=format&fit=crop&w=1600&q=80',
+      'https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?auto=format&fit=crop&w=1600&q=80'
+    ],
+    adsIntervalSec:6,
+    adsIndex:0,
+    adsCountdown:6,
+
+    infoTitle:'作業の注意',
+    infoText:'安全第一\n足元注意\n立入禁止区域の確認'
   };
 
-  // ---- Clock ----
-  const pad2 = (n)=> String(n).padStart(2,'0');
-  const jpDow = ['日','月','火','水','木','金','土'];
+  // --------- Clock ---------
+  const clockEl = document.getElementById('clock');
   function tickClock(){
     const d = new Date();
     clockEl.textContent = `${d.getMonth()+1}月${d.getDate()}日（${jpDow[d.getDay()]}） ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
@@ -737,55 +846,69 @@
   tickClock();
   setInterval(tickClock, 1000);
 
-  // ---- Theme ----
+  // --------- Theme ---------
   function setTheme(next){
     state.theme = next;
     stage.setAttribute('data-theme', next);
-    const btn = document.getElementById('themeToggleInSettings');
-    btn.textContent = next === 'dark' ? 'ライトに切替' : 'ダークに切替';
+    document.getElementById('themeToggleInSettings').textContent =
+      next === 'dark' ? 'ライトに切替' : 'ダークに切替';
   }
 
-  // ---- Poster ----
-  const posterImg = document.getElementById('posterImg');
-  function showPoster(){
-    posterImg.src = state.posters[state.posterIndex] || '';
+  // --------- Info render ---------
+  const infoTitleEl = document.getElementById('infoTitle');
+  const infoTextEl  = document.getElementById('infoText');
+  function renderInfo(){
+    infoTitleEl.textContent = state.infoTitle;
+    infoTextEl.textContent  = state.infoText;
   }
-  function posterTick(){
-    state.posterCountdown -= 1;
-    if(state.posterCountdown <= 0){
-      state.posterIndex = (state.posterIndex + 1) % Math.max(state.posters.length, 1);
-      state.posterCountdown = Math.max(1, Number(state.posterIntervalSec) || 6);
-      showPoster();
+  renderInfo();
+
+  // --------- Ads render (3 cards, rotating) ---------
+  const adsRow = document.getElementById('adsRow');
+  function renderAds(){
+    adsRow.innerHTML = '';
+    const total = state.ads.length || 1;
+    for(let i=0;i<3;i++){
+      const idx = (state.adsIndex + i) % total;
+      const card = document.createElement('div');
+      card.className = 'ad-card';
+      const img = document.createElement('img');
+      img.src = state.ads[idx] || '';
+      img.alt = 'ad';
+      card.appendChild(img);
+      adsRow.appendChild(card);
     }
   }
-  showPoster();
-  setInterval(posterTick, 1000);
+  function adsTick(){
+    state.adsCountdown -= 1;
+    if(state.adsCountdown <= 0){
+      state.adsIndex = (state.adsIndex + 1) % Math.max(state.ads.length, 1);
+      state.adsCountdown = Math.max(1, Number(state.adsIntervalSec) || 6);
+      renderAds();
+    }
+  }
+  renderAds();
+  setInterval(adsTick, 1000);
 
-  // ---- Table render ----
+  // --------- Table ---------
   const tbody = document.getElementById('tbody');
 
   function chipBg(chip){
     return chip.color || state.typeColors[chip.type] || '#EEF2F7';
   }
-
-  function chipEl(chip, {draggable=false, payload=null} = {}){
+  function makeChip(chip, rowIndex, key, index){
     const el = document.createElement('div');
-    el.className = 'chip';
+    el.className = 'chip' + (chip.type === 'time' ? ' time' : '');
     el.style.background = chipBg(chip);
     el.textContent = chip.label;
 
-    if(draggable){
-      el.draggable = true;
-      el.addEventListener('dragstart', (e)=>{
-        el.classList.add('dragging');
-        trash.classList.add('show');
-        e.dataTransfer.effectAllowed = 'move';
-        e.dataTransfer.setData('application/json', JSON.stringify(payload));
-      });
-      el.addEventListener('dragend', ()=>{
-        el.classList.remove('dragging');
-        trash.classList.remove('show');
-        trash.classList.remove('over');
+    // chip単体削除（ポップアップで）
+    if(chip.type !== 'time'){
+      el.title = 'クリックで削除';
+      el.addEventListener('click', (e)=>{
+        e.stopPropagation();
+        state.rows[rowIndex][key].splice(index,1);
+        renderTable();
       });
     }
     return el;
@@ -795,42 +918,21 @@
     cellDiv.innerHTML = '';
     if(key === 'time'){
       const v = state.rows[rowIndex].time;
-      if(!v){
-        const ph = document.createElement('span');
-        ph.className = 'cell placeholder';
-        ph.textContent = '';
-        cellDiv.appendChild(ph);
-        return;
-      }
-      cellDiv.appendChild(chipEl(
-        {type:'time', label:v, color: state.typeColors.time},
-        {draggable:true, payload:{ kind:'cellChip', row:rowIndex, key:'time' }}
-      ));
+      if(!v){ return; }
+      const chip = document.createElement('div');
+      chip.className = 'chip time';
+      chip.style.background = state.typeColors.time;
+      chip.textContent = v;
+      cellDiv.appendChild(chip);
       return;
     }
 
     const arr = state.rows[rowIndex][key] || [];
-    if(arr.length === 0){
-      const ph = document.createElement('span');
-      ph.className = 'cell placeholder';
-      ph.textContent = '';
-      cellDiv.appendChild(ph);
-      return;
-    }
-    arr.forEach((c, idx)=>{
-      cellDiv.appendChild(chipEl(
-        c,
-        {draggable:true, payload:{ kind:'cellChip', row:rowIndex, key, index:idx }}
-      ));
-    });
+    arr.forEach((c, idx)=> cellDiv.appendChild(makeChip(c,rowIndex,key,idx)));
   }
 
   function makeTd(rowIndex, key){
     const td = document.createElement('td');
-    td.classList.add('droppable');
-    td.dataset.row = rowIndex;
-    td.dataset.key = key;
-
     const cell = document.createElement('div');
     cell.className = 'cell';
     td.appendChild(cell);
@@ -838,40 +940,8 @@
     td.addEventListener('click', (e)=>{
       e.stopPropagation();
       const rect = td.getBoundingClientRect();
-      if(key === 'time') openTimePopover(rowIndex, rect);
-      else openSelectPopover(rowIndex, key, rect);
-    });
-
-    td.addEventListener('dragover', (e)=>{ e.preventDefault(); td.classList.add('drag-over'); });
-    td.addEventListener('dragleave', ()=> td.classList.remove('drag-over'));
-    td.addEventListener('drop', (e)=>{
-      e.preventDefault();
-      td.classList.remove('drag-over');
-      const payload = e.dataTransfer.getData('application/json');
-      if(!payload) return;
-      const data = JSON.parse(payload);
-
-      if(data.kind === 'cellChip'){
-        if(key === 'time'){
-          if(data.key !== 'time') return;
-          state.rows[rowIndex].time = state.rows[data.row].time;
-          state.rows[data.row].time = '';
-          renderTable();
-          return;
-        }
-        if(data.key === 'time') return;
-
-        const moved = state.rows[data.row][data.key].splice(data.index,1)[0];
-        state.rows[rowIndex][key].push(moved);
-        renderTable();
-        return;
-      }
-
-      if(data.kind === 'magnet'){
-        if(key === 'time') return;
-        state.rows[rowIndex][key].push({type:data.type, label:data.label, color:data.color || null});
-        renderTable();
-      }
+      if(key === 'time') openTimePicker(rowIndex, rect);
+      else openItemPicker(rowIndex, key, rect);
     });
 
     renderCell(cell, rowIndex, key);
@@ -880,7 +950,7 @@
 
   function renderTable(){
     tbody.innerHTML = '';
-    state.rows.forEach((r, i)=>{
+    state.rows.forEach((r,i)=>{
       const tr = document.createElement('tr');
       tr.appendChild(makeTd(i,'name'));
       tr.appendChild(makeTd(i,'dest'));
@@ -888,95 +958,290 @@
       tbody.appendChild(tr);
     });
   }
+  renderTable();
 
-  // ---- Magnets ----
-  function magnetBg(type, item){
-    return item.color || state.typeColors[type] || '#EEF2F7';
+  // --------- Picker (kana index + search) ---------
+  const picker = document.getElementById('picker');
+
+  function closePicker(){
+    picker.style.display = 'none';
+    picker.innerHTML = '';
   }
-
-  function renderMagnets(){
-    const names = document.getElementById('magNames');
-    const cars  = document.getElementById('magCars');
-    const dests = document.getElementById('magDests');
-    names.innerHTML = cars.innerHTML = dests.innerHTML = '';
-
-    function addMag(container, type, item){
-      const el = document.createElement('div');
-      el.className = 'mag';
-      el.draggable = true;
-      el.style.background = magnetBg(type, item);
-      el.textContent = item.label;
-
-      el.addEventListener('dragstart', (e)=>{
-        el.classList.add('dragging');
-        trash.classList.add('show');
-        e.dataTransfer.effectAllowed = 'copy';
-        e.dataTransfer.setData('application/json', JSON.stringify({
-          kind:'magnet',
-          type,
-          label:item.label,
-          color:item.color || null
-        }));
-      });
-      el.addEventListener('dragend', ()=>{
-        el.classList.remove('dragging');
-        trash.classList.remove('show');
-        trash.classList.remove('over');
-      });
-
-      container.appendChild(el);
-    }
-
-    state.magnets.name.forEach(item=> addMag(names,'name',item));
-    state.magnets.car.forEach(item=> addMag(cars,'car',item));
-    state.magnets.dest.forEach(item=> addMag(dests,'dest',item));
-  }
-
-  // ---- Trash (delete when dropped) ----
-  trash.addEventListener('dragover', (e)=>{ e.preventDefault(); trash.classList.add('over'); });
-  trash.addEventListener('dragleave', ()=> trash.classList.remove('over'));
-  trash.addEventListener('drop', (e)=>{
-    e.preventDefault();
-    trash.classList.remove('over');
-    trash.classList.remove('show');
-    const payload = e.dataTransfer.getData('application/json');
-    if(!payload) return;
-    const data = JSON.parse(payload);
-
-    if(data.kind === 'cellChip'){
-      if(data.key === 'time') state.rows[data.row].time = '';
-      else state.rows[data.row][data.key].splice(data.index,1);
-      renderTable();
-    }
+  window.addEventListener('click', (e)=>{
+    if(document.getElementById('backdrop').classList.contains('open')) return;
+    if(picker.style.display === 'none') return;
+    if(!picker.contains(e.target)) closePicker();
   });
+  window.addEventListener('resize', closePicker);
+  window.addEventListener('scroll', closePicker, true);
 
-  // ---- Settings modal ----
+  function placePickerNearRect(rect){
+    const pad = 12;
+
+    picker.style.display = 'block';
+    picker.style.left = '0px';
+    picker.style.top = '0px';
+    picker.style.visibility = 'hidden';
+
+    const w = picker.offsetWidth;
+    const h = picker.offsetHeight;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+
+    let left = rect.left + (rect.width/2) - (w/2);
+    let top  = rect.top + (rect.height/2) - (h/2);
+
+    if(left < pad) left = pad;
+    if(left + w + pad > vw) left = vw - w - pad;
+    if(top < pad) top = pad;
+    if(top + h + pad > vh) top = vh - h - pad;
+
+    picker.style.left = `${left}px`;
+    picker.style.top  = `${top}px`;
+    picker.style.visibility = 'visible';
+  }
+
+  function buildGroups(items){
+    const groupsOrder = ['あ','か','さ','た','な','は','ま','や','ら','わ','#'];
+    const map = new Map(groupsOrder.map(k => [k, []]));
+    items.forEach(it => {
+      const g = headKanaGroup(it.yomi);
+      if(!map.has(g)) map.set(g, []);
+      map.get(g).push(it);
+    });
+    // sort within group by yomi
+    groupsOrder.forEach(k => {
+      map.get(k).sort((a,b)=> (toHiragana(a.yomi)||'').localeCompare(toHiragana(b.yomi)||''));
+    });
+    return {groupsOrder, map};
+  }
+
+  function openItemPicker(rowIndex, key, rect){
+    // key=name -> name items
+    // key=dest -> dest + car items (両方置ける)
+    let source = [];
+    if(key === 'name'){
+      source = state.items.name.map(x => ({...x, type:'name'}));
+    } else {
+      source = [
+        ...state.items.dest.map(x => ({...x, type:'dest'})),
+        ...state.items.car.map(x => ({...x, type:'car'}))
+      ];
+    }
+
+    const title = key === 'name' ? '氏名' : '行先';
+    picker.innerHTML = `
+      <div class="pop-head">
+        <div class="h">${title}</div>
+        <button class="icon-btn" id="pickClose">×</button>
+      </div>
+
+      <div class="pop-body">
+        <div class="pop-main">
+          <div class="search-row">
+            <input type="text" id="q" placeholder="検索（表示 / 読み方）" />
+            <button class="btn" id="clearCell">クリア</button>
+          </div>
+          <div class="list" id="list"></div>
+
+          <div class="mini">カスタム指定（OSキーボード）</div>
+          <div class="search-row">
+            <input type="text" id="custom" placeholder="自由入力" />
+            <button class="btn primary" id="addCustom">追加</button>
+          </div>
+        </div>
+
+        <div class="kana" id="kana"></div>
+      </div>
+
+      <div class="actions">
+        <button class="btn danger" id="clearAll">全削除</button>
+        <button class="btn primary" id="done">閉じる</button>
+      </div>
+    `;
+
+    picker.querySelector('#pickClose').addEventListener('click', closePicker);
+    picker.querySelector('#done').addEventListener('click', closePicker);
+
+    const listEl = picker.querySelector('#list');
+    const kanaEl = picker.querySelector('#kana');
+    const qEl = picker.querySelector('#q');
+
+    function renderList(){
+      const q = (qEl.value || '').trim();
+      const filtered = source.filter(it => {
+        if(!q) return true;
+        const hay = `${it.label} ${it.yomi}`.toLowerCase();
+        return hay.includes(q.toLowerCase());
+      });
+
+      const {groupsOrder, map} = buildGroups(filtered);
+
+      listEl.innerHTML = '';
+      groupsOrder.forEach(k => {
+        const arr = map.get(k);
+        if(!arr || arr.length === 0) return;
+
+        const group = document.createElement('div');
+        group.className = 'group';
+        group.id = `g-${k}`;
+
+        const gt = document.createElement('div');
+        gt.className = 'group-title';
+        gt.textContent = k;
+        group.appendChild(gt);
+
+        const items = document.createElement('div');
+        items.className = 'items';
+
+        arr.forEach(it => {
+          const p = document.createElement('div');
+          p.className = 'pick';
+
+          const sw = document.createElement('span');
+          sw.className = 'swatch';
+          sw.style.background = it.color || state.typeColors[it.type] || '#EEF2F7';
+
+          const t = document.createElement('div');
+          t.className = 'pick-text';
+          t.innerHTML = `<div class="label">${escapeHtml(it.label)}</div><div class="yomi">${escapeHtml(it.yomi || '')}</div>`;
+
+          p.appendChild(sw);
+          p.appendChild(t);
+
+          p.addEventListener('click', ()=>{
+            state.rows[rowIndex][key].push({
+              type: it.type,
+              label: it.label,
+              yomi: it.yomi || '',
+              color: it.color || null
+            });
+            renderTable();
+          });
+
+          items.appendChild(p);
+        });
+
+        group.appendChild(items);
+        listEl.appendChild(group);
+      });
+
+      // kana index
+      const kanaKeys = ['あ','か','さ','た','な','は','ま','や','ら','わ','#'];
+      kanaEl.innerHTML = '';
+      kanaKeys.forEach(k => {
+        const a = document.createElement('a');
+        a.textContent = k;
+        a.addEventListener('click', ()=>{
+          const target = listEl.querySelector(`#g-${CSS.escape(k)}`);
+          if(target) target.scrollIntoView({behavior:'smooth', block:'start'});
+        });
+        kanaEl.appendChild(a);
+      });
+    }
+
+    qEl.addEventListener('input', renderList);
+    picker.querySelector('#clearCell').addEventListener('click', ()=>{
+      state.rows[rowIndex][key] = [];
+      renderTable();
+      renderList();
+    });
+    picker.querySelector('#clearAll').addEventListener('click', ()=>{
+      state.rows[rowIndex][key] = [];
+      renderTable();
+      renderList();
+    });
+
+    picker.querySelector('#addCustom').addEventListener('click', ()=>{
+      const v = (picker.querySelector('#custom').value || '').trim();
+      if(!v) return;
+      state.rows[rowIndex][key].push({type:'custom', label:v, yomi:'', color:null});
+      renderTable();
+      picker.querySelector('#custom').value = '';
+    });
+
+    renderList();
+    placePickerNearRect(rect);
+    qEl.focus();
+  }
+
+  function openTimePicker(rowIndex, rect){
+    picker.innerHTML = `
+      <div class="pop-head">
+        <div class="h">帰社時間</div>
+        <button class="icon-btn" id="pickClose">×</button>
+      </div>
+      <div class="pop-body" style="grid-template-columns: 1fr;">
+        <div class="pop-main" style="padding:14px;">
+          <div class="list" id="timeList" style="height:520px;"></div>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn danger" id="clear">クリア</button>
+        <button class="btn primary" id="done">閉じる</button>
+      </div>
+    `;
+    picker.querySelector('#pickClose').addEventListener('click', closePicker);
+    picker.querySelector('#done').addEventListener('click', closePicker);
+
+    const timeList = picker.querySelector('#timeList');
+    const times = [];
+    for(let h=8; h<=20; h++){
+      times.push(`${pad2(h)}:00`);
+      if(h!==20) times.push(`${pad2(h)}:30`);
+    }
+
+    // simple 2-col grid
+    const wrap = document.createElement('div');
+    wrap.style.display = 'grid';
+    wrap.style.gridTemplateColumns = '1fr 1fr';
+    wrap.style.gap = '10px';
+    wrap.style.padding = '12px';
+
+    times.forEach(t=>{
+      const p = document.createElement('div');
+      p.className = 'pick';
+      p.textContent = t;
+      p.addEventListener('click', ()=>{
+        state.rows[rowIndex].time = t;
+        renderTable();
+      });
+      wrap.appendChild(p);
+    });
+
+    timeList.appendChild(wrap);
+
+    picker.querySelector('#clear').addEventListener('click', ()=>{
+      state.rows[rowIndex].time = '';
+      renderTable();
+    });
+
+    placePickerNearRect(rect);
+  }
+
+  // --------- Settings Modal ---------
   const backdrop = document.getElementById('backdrop');
   const openSettingsBtn = document.getElementById('openSettingsBtn');
   const closeSettingsBtn = document.getElementById('closeSettingsBtn');
-  const posterZone = document.getElementById('posterZone');
+  const adsPanel = document.getElementById('adsPanel');
 
   function openSettings(){
     backdrop.classList.add('open');
-    renderSettingsLists();
-    document.getElementById('posterInterval').value = state.posterIntervalSec;
+    syncSettingsUI();
   }
-  function closeSettings(){ backdrop.classList.remove('open'); }
-
+  function closeSettings(){
+    backdrop.classList.remove('open');
+  }
   openSettingsBtn.addEventListener('click', openSettings);
   closeSettingsBtn.addEventListener('click', closeSettings);
-  posterZone.addEventListener('click', openSettings);
+  adsPanel.addEventListener('click', openSettings);
   backdrop.addEventListener('click', (e)=>{ if(e.target === backdrop) closeSettings(); });
 
   // Tabs
   const tabs = document.getElementById('tabs');
   function setActiveTab(key){
-    tabs.querySelectorAll('.tab').forEach(t=>{
-      t.classList.toggle('active', t.dataset.tab === key);
-    });
-    document.querySelectorAll('.section').forEach(sec=>{
-      sec.classList.toggle('active', sec.id === `tab-${key}`);
-    });
+    tabs.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === key));
+    document.querySelectorAll('.section').forEach(s => s.classList.toggle('active', s.id === `tab-${key}`));
   }
   tabs.addEventListener('click', (e)=>{
     const el = e.target.closest('.tab');
@@ -984,103 +1249,94 @@
     setActiveTab(el.dataset.tab);
   });
 
-  // theme toggle in settings
+  // Theme toggle
   document.getElementById('themeToggleInSettings').addEventListener('click', ()=>{
     setTheme(state.theme === 'dark' ? 'light' : 'dark');
   });
 
-  // poster settings
-  const posterList = document.getElementById('posterList');
-  const posterIntervalInput = document.getElementById('posterInterval');
-  const addPosterBtn = document.getElementById('addPosterBtn');
-  const posterUrlInput = document.getElementById('posterUrl');
-
-  posterIntervalInput.addEventListener('change', ()=>{
-    const v = Math.max(1, Number(posterIntervalInput.value) || 6);
-    state.posterIntervalSec = v;
-    state.posterCountdown = v;
-  });
-
-  addPosterBtn.addEventListener('click', ()=>{
-    const url = posterUrlInput.value.trim();
-    if(!url) return;
-    state.posters.push(url);
-    posterUrlInput.value = '';
-    renderSettingsLists();
-  });
-
-  // magnet colors (type)
+  // Colors
   const colorName = document.getElementById('colorName');
   const colorCar  = document.getElementById('colorCar');
   const colorDest = document.getElementById('colorDest');
-  function syncColorInputs(){
-    colorName.value = state.typeColors.name;
-    colorCar.value  = state.typeColors.car;
-    colorDest.value = state.typeColors.dest;
-  }
-  colorName.addEventListener('input', ()=>{ state.typeColors.name = colorName.value; renderMagnets(); renderTable(); });
-  colorCar.addEventListener('input',  ()=>{ state.typeColors.car  = colorCar.value;  renderMagnets(); renderTable(); });
-  colorDest.addEventListener('input', ()=>{ state.typeColors.dest = colorDest.value; renderMagnets(); renderTable(); });
+  colorName.addEventListener('input', ()=>{ state.typeColors.name = colorName.value; renderTable(); });
+  colorCar.addEventListener('input',  ()=>{ state.typeColors.car  = colorCar.value;  renderTable(); });
+  colorDest.addEventListener('input', ()=>{ state.typeColors.dest = colorDest.value; renderTable(); });
 
-  // magnet add (per-item color)
-  const addMagBtn = document.getElementById('addMagBtn');
-  const magValueInput = document.getElementById('magValue');
-  const magTypeSelect = document.getElementById('magType');
-  const magColorInput = document.getElementById('magColor');
-  const magList = document.getElementById('magList');
-
-  function syncMagColorDefault(){
-    const t = magTypeSelect.value;
-    magColorInput.value = state.typeColors[t] || '#EEF2F7';
-  }
-  magTypeSelect.addEventListener('change', syncMagColorDefault);
-
-  addMagBtn.addEventListener('click', ()=>{
-    const v = magValueInput.value.trim();
-    if(!v) return;
-    const type = magTypeSelect.value;
-    const col = magColorInput.value || null;
-    state.magnets[type].push({label:v, color: col});
-    magValueInput.value = '';
-    renderMagnets();
-    renderSettingsLists();
+  // Ads
+  const adsInterval = document.getElementById('adsInterval');
+  adsInterval.addEventListener('change', ()=>{
+    state.adsIntervalSec = Math.max(1, Number(adsInterval.value) || 6);
+    state.adsCountdown = state.adsIntervalSec;
+  });
+  document.getElementById('addAdBtn').addEventListener('click', ()=>{
+    const url = (document.getElementById('adUrl').value || '').trim();
+    if(!url) return;
+    state.ads.push(url);
+    document.getElementById('adUrl').value = '';
+    renderAds();
+    renderAdList();
   });
 
-  function renderSettingsLists(){
-    // posters
-    posterList.innerHTML = '';
-    state.posters.forEach((url, idx)=>{
-      const item = document.createElement('div');
-      item.className = 'list-item';
-      item.innerHTML = `<div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:720px;">${escapeHtml(url)}</div>`;
+  const adList = document.getElementById('adList');
+  function renderAdList(){
+    adList.innerHTML = '';
+    state.ads.forEach((url, idx)=>{
+      const row = document.createElement('div');
+      row.className = 'list-item';
+      row.innerHTML = `<div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:740px;">${escapeHtml(url)}</div>`;
       const rm = document.createElement('div');
       rm.className = 'rm';
       rm.textContent = '削除';
       rm.addEventListener('click', ()=>{
-        state.posters.splice(idx,1);
-        state.posterIndex = Math.min(state.posterIndex, Math.max(0, state.posters.length-1));
-        if(state.posters.length === 0){
-          state.posters.push('https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1600&q=80');
+        state.ads.splice(idx,1);
+        if(state.ads.length === 0){
+          state.ads.push('https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1600&q=80');
         }
-        showPoster();
-        renderSettingsLists();
+        state.adsIndex = Math.min(state.adsIndex, state.ads.length-1);
+        renderAds();
+        renderAdList();
       });
-      item.appendChild(rm);
-      posterList.appendChild(item);
+      row.appendChild(rm);
+      adList.appendChild(row);
     });
+  }
 
-    // magnets list
-    magList.innerHTML = '';
+  // Items (label + yomi)
+  const itemType = document.getElementById('itemType');
+  const itemColor = document.getElementById('itemColor');
+  function syncItemColorDefault(){
+    itemColor.value = state.typeColors[itemType.value] || '#EEF2F7';
+  }
+  itemType.addEventListener('change', syncItemColorDefault);
+
+  document.getElementById('addItemBtn').addEventListener('click', ()=>{
+    const label = (document.getElementById('itemLabel').value || '').trim();
+    const yomi  = (document.getElementById('itemYomi').value  || '').trim();
+    const type  = itemType.value;
+    if(!label) return;
+    state.items[type].push({label, yomi: yomi || '', color: itemColor.value || null});
+    document.getElementById('itemLabel').value = '';
+    document.getElementById('itemYomi').value = '';
+    renderItemList();
+  });
+
+  const itemList = document.getElementById('itemList');
+  function renderItemList(){
+    itemList.innerHTML = '';
     [['name','名前'],['car','車'],['dest','行先']].forEach(([type, label])=>{
-      state.magnets[type].forEach((it, idx)=>{
+      state.items[type].forEach((it, idx)=>{
         const row = document.createElement('div');
         row.className = 'list-item';
 
         const left = document.createElement('div');
         left.style.display='flex';
-        left.style.gap='10px';
-        left.style.alignItems='center';
-        left.innerHTML = `<span class="pill" style="padding:8px 10px;">${label}</span><span>${escapeHtml(it.label)}</span>`;
+        left.style.flexDirection='column';
+        left.style.gap='2px';
+        left.style.minWidth='0';
+        left.innerHTML = `
+          <div><span class="pill" style="padding:6px 10px; margin-right:8px;">${label}</span>${escapeHtml(it.label)}</div>
+          <div class="mini">${escapeHtml(it.yomi || '')}</div>
+        `;
 
         const right = document.createElement('div');
         right.style.display='flex';
@@ -1090,20 +1346,14 @@
         const c = document.createElement('input');
         c.type = 'color';
         c.value = it.color || state.typeColors[type];
-        c.title = '色';
-        c.addEventListener('input', ()=>{
-          it.color = c.value;
-          renderMagnets();
-          renderTable();
-        });
+        c.addEventListener('input', ()=>{ it.color = c.value; renderTable(); });
 
         const rm = document.createElement('div');
         rm.className = 'rm';
         rm.textContent = '削除';
         rm.addEventListener('click', ()=>{
-          state.magnets[type].splice(idx,1);
-          renderMagnets();
-          renderSettingsLists();
+          state.items[type].splice(idx,1);
+          renderItemList();
         });
 
         right.appendChild(c);
@@ -1111,180 +1361,47 @@
 
         row.appendChild(left);
         row.appendChild(right);
-        magList.appendChild(row);
+        itemList.appendChild(row);
       });
     });
-
-    syncColorInputs();
-    syncMagColorDefault();
   }
 
-  // ---- Popover ----
-  const pop = document.getElementById('popover');
-
-  function closePopover(){
-    pop.style.display = 'none';
-    pop.innerHTML = '';
-  }
-  window.addEventListener('click', (e)=>{
-    if(backdrop.classList.contains('open')) return;
-    if(pop.style.display === 'none') return;
-    if(!pop.contains(e.target)) closePopover();
+  // Info edit
+  const infoTitleInput = document.getElementById('infoTitleInput');
+  const infoTextInput  = document.getElementById('infoTextInput');
+  document.getElementById('applyInfoBtn').addEventListener('click', ()=>{
+    state.infoTitle = (infoTitleInput.value || '').trim() || '作業の注意';
+    state.infoText  = (infoTextInput.value || '').trim();
+    renderInfo();
   });
-  window.addEventListener('resize', closePopover);
-  window.addEventListener('scroll', closePopover, true);
 
-  function placePopoverNearRect(rect){
-    const pad = 12;
-    let left = rect.right + 10;
-    let top  = rect.top;
+  function syncSettingsUI(){
+    // theme
+    document.getElementById('themeToggleInSettings').textContent =
+      state.theme === 'dark' ? 'ライトに切替' : 'ダークに切替';
 
-    pop.style.display = 'block';
-    pop.style.left = '0px';
-    pop.style.top = '0px';
-    pop.style.visibility = 'hidden';
+    // colors
+    colorName.value = state.typeColors.name;
+    colorCar.value  = state.typeColors.car;
+    colorDest.value = state.typeColors.dest;
 
-    const w = pop.offsetWidth;
-    const h = pop.offsetHeight;
+    // ads
+    adsInterval.value = state.adsIntervalSec;
+    renderAdList();
 
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
+    // items
+    syncItemColorDefault();
+    renderItemList();
 
-    if(left + w + pad > vw) left = rect.left - w - 10;
-    if(left < pad) left = pad;
-
-    if(top + h + pad > vh) top = vh - h - pad;
-    if(top < pad) top = pad;
-
-    pop.style.left = `${left}px`;
-    pop.style.top = `${top}px`;
-    pop.style.visibility = 'visible';
+    // info
+    infoTitleInput.value = state.infoTitle;
+    infoTextInput.value  = state.infoText;
   }
 
-  function openTimePopover(rowIndex, rect){
-    pop.innerHTML = `
-      <div class="pop-head">
-        <div class="h">帰社時間</div>
-        <button class="icon-btn" id="popClose">×</button>
-      </div>
-      <div class="pop-body">
-        <div class="pick-grid" id="timeGrid"></div>
-        <div class="row">
-          <button class="btn" id="clearTime">クリア</button>
-        </div>
-      </div>
-    `;
-    pop.querySelector('#popClose').addEventListener('click', closePopover);
-
-    const grid = pop.querySelector('#timeGrid');
-    const times = [];
-    for(let h=8; h<=20; h++){
-      times.push(`${String(h).padStart(2,'0')}:00`);
-      if(h!==20) times.push(`${String(h).padStart(2,'0')}:30`);
-    }
-    times.forEach(t=>{
-      const btn = document.createElement('div');
-      btn.className = 'pick';
-      btn.textContent = t;
-      btn.addEventListener('click', ()=>{
-        state.rows[rowIndex].time = t;
-        renderTable();
-        closePopover();
-      });
-      grid.appendChild(btn);
-    });
-
-    pop.querySelector('#clearTime').addEventListener('click', ()=>{
-      state.rows[rowIndex].time = '';
-      renderTable();
-      closePopover();
-    });
-
-    placePopoverNearRect(rect);
-  }
-
-  function openSelectPopover(rowIndex, key, rect){
-    const title = key === 'name' ? '氏名' : '行先';
-    const list = key === 'name'
-      ? state.magnets.name.map(v=>({type:'name',label:v.label,color:v.color}))
-      : [
-          ...state.magnets.dest.map(v=>({type:'dest',label:v.label,color:v.color})),
-          ...state.magnets.car.map(v=>({type:'car',label:v.label,color:v.color}))
-        ];
-
-    pop.innerHTML = `
-      <div class="pop-head">
-        <div class="h">${title}</div>
-        <button class="icon-btn" id="popClose">×</button>
-      </div>
-      <div class="pop-body">
-        <div class="pick-grid" id="pickGrid"></div>
-
-        <div class="muted">カスタム指定</div>
-        <div class="row">
-          <input type="text" id="customText" placeholder="自由入力" />
-          <button class="btn primary" id="addCustom">追加</button>
-        </div>
-
-        <div class="row">
-          <button class="btn" id="clearAll">クリア</button>
-        </div>
-      </div>
-    `;
-
-    pop.querySelector('#popClose').addEventListener('click', closePopover);
-
-    const grid = pop.querySelector('#pickGrid');
-    list.slice(0, 12).forEach(item=>{
-      const b = document.createElement('div');
-      b.className = 'pick';
-      const sw = document.createElement('span');
-      sw.className = 'swatch';
-      sw.style.background = item.color || state.typeColors[item.type] || '#EEF2F7';
-      const t = document.createElement('span');
-      t.style.fontWeight = '950';
-      t.textContent = item.label;
-      b.appendChild(sw);
-      b.appendChild(t);
-
-      b.addEventListener('click', ()=>{
-        state.rows[rowIndex][key].push({type:item.type, label:item.label, color:item.color || null});
-        renderTable();
-      });
-      grid.appendChild(b);
-    });
-
-    pop.querySelector('#addCustom').addEventListener('click', ()=>{
-      const v = pop.querySelector('#customText').value.trim();
-      if(!v) return;
-      state.rows[rowIndex][key].push({type:'custom', label:v, color:null});
-      renderTable();
-      closePopover();
-    });
-
-    pop.querySelector('#clearAll').addEventListener('click', ()=>{
-      state.rows[rowIndex][key] = [];
-      renderTable();
-      closePopover();
-    });
-
-    placePopoverNearRect(rect);
-  }
-
-  function escapeHtml(s){
-    return String(s)
-      .replaceAll('&','&amp;')
-      .replaceAll('<','&lt;')
-      .replaceAll('>','&gt;')
-      .replaceAll('"','&quot;')
-      .replaceAll("'","&#039;");
-  }
-
-  // ---- init ----
+  // init
   setTheme('light');
-  renderTable();
-  renderMagnets();
-
+  renderAdList();
+  renderItemList();
 })();
 </script>
 </body>
