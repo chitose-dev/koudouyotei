@@ -25,6 +25,7 @@
       --shadow: 0 16px 46px rgba(0,0,0,.42);
       --accent:#60a5fa;
     }
+
     *{ box-sizing:border-box; }
     html,body{ height:100%; }
     body{
@@ -39,37 +40,38 @@
     .stage-wrap{
       width:100vw; height:100vh;
       display:flex; align-items:center; justify-content:center;
-      padding:8px;
+      padding:0;                 /* 余白ゼロ */
+      background:var(--bg);
     }
     .stage{
       width:1920px; height:1080px;
       background:var(--bg);
-      border:1px solid var(--border);
-      border-radius:18px;
+      border:none;               /* 外枠消す */
+      border-radius:0;           /* 角丸消す */
       overflow:hidden;
       display:flex; flex-direction:column;
-      box-shadow:var(--shadow);
+      box-shadow:none;           /* 影消す */
       transform-origin:center center;
     }
     @media (max-aspect-ratio: 16/9){
-      .stage{ transform: scale(calc((100vw - 16px)/1920)); }
+      .stage{ transform: scale(calc(100vw/1920)); }
     }
     @media (min-aspect-ratio: 16/9){
-      .stage{ transform: scale(calc((100vh - 16px)/1080)); }
+      .stage{ transform: scale(calc(100vh/1080)); }
     }
 
     header{
-      height:92px;
+      height:84px;
       display:flex;
       align-items:center;
       justify-content:space-between;
-      padding:18px 22px;
+      padding:16px 20px;
       border-bottom:1px solid var(--border);
       background:linear-gradient(180deg, var(--panel2), var(--bg));
     }
     .title{
       font-size:34px;
-      font-weight:900;
+      font-weight:950;
       letter-spacing:.02em;
     }
     .header-right{
@@ -80,7 +82,7 @@
     .clock{
       font-size:22px;
       color:var(--muted);
-      font-weight:800;
+      font-weight:850;
       white-space:nowrap;
     }
     .btn{
@@ -89,7 +91,7 @@
       color:var(--text);
       padding:10px 14px;
       border-radius:12px;
-      font-weight:850;
+      font-weight:900;
       cursor:pointer;
       user-select:none;
       transition: transform .06s ease, background .2s ease;
@@ -101,20 +103,22 @@
       color:#fff;
     }
 
+    /* 画面を広く使う：gap/余白を詰める */
     .main{
       flex:1;
       display:grid;
-      grid-template-columns: 1fr 1fr; /* 左:表 / 右:情報 */
-      gap:14px;
-      padding:14px;
+      grid-template-columns: 1.02fr .98fr; /* ほぼ半分、わずかに表側広め */
+      gap:10px;
+      padding:10px;
       min-height:0;
     }
+
     .panel{
       background:var(--panel2);
       border:1px solid var(--border);
-      border-radius:16px;
+      border-radius:14px;
       overflow:hidden;
-      box-shadow: 0 6px 18px rgba(0,0,0,.05);
+      box-shadow:none;          /* カード影は消してスッキリ */
       min-height:0;
     }
 
@@ -142,7 +146,7 @@
       border-bottom:1px solid var(--border);
       border-right:1px solid var(--border);
       padding:10px 12px;
-      height:74px;
+      height:76px;
       vertical-align:middle;
       position:relative;
     }
@@ -162,7 +166,6 @@
       overflow:hidden;
     }
 
-    /* Square chips in cells */
     .chip{
       display:inline-flex;
       align-items:center;
@@ -181,34 +184,31 @@
       text-overflow:ellipsis;
     }
     .chip.time{ cursor:default; }
-    .chip:hover{ filter:brightness(0.98); }
+    .chip:hover{ filter:brightness(0.985); }
 
     /* Right: Info Zone */
     .right{
       display:flex;
       flex-direction:column;
       min-height:0;
-      gap:14px;
+      gap:10px;
     }
-    .ads{
-      flex:1;
-      display:flex;
-      flex-direction:column;
-      min-height:0;
-    }
+
+    /* Posters: 2枚横並び */
+    .ads{ flex:1; display:flex; flex-direction:column; min-height:0; }
     .ads-row{
       flex:1;
       display:grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap:12px;
-      padding:12px;
+      grid-template-columns: 1fr 1fr; /* 2枚 */
+      gap:10px;
+      padding:10px;
       min-height:0;
     }
     .ad-card{
       border:1px solid var(--border);
       border-radius:14px;
       overflow:hidden;
-      background:linear-gradient(135deg,
+      background: linear-gradient(135deg,
         color-mix(in srgb, var(--panel) 80%, transparent),
         color-mix(in srgb, var(--panel2) 80%, transparent)
       );
@@ -223,21 +223,16 @@
       display:block;
     }
 
-    .info{
-      flex:1;
-      display:flex;
-      flex-direction:column;
-      min-height:0;
-    }
+    .info{ flex:1; display:flex; flex-direction:column; min-height:0; }
     .info-inner{
       height:100%;
-      padding:26px;
+      padding:28px;
       display:flex;
       flex-direction:column;
       justify-content:center;
       gap:14px;
       background:
-        radial-gradient(900px 500px at 30% 30%,
+        radial-gradient(900px 520px at 30% 30%,
           color-mix(in srgb, var(--accent) 10%, transparent),
           transparent 60%),
         linear-gradient(180deg, var(--panel2), var(--bg));
@@ -249,19 +244,19 @@
       color:var(--muted);
     }
     .info-text{
-      font-size:54px;
+      font-size:58px;
       font-weight:950;
-      line-height:1.25;
+      line-height:1.22;
       letter-spacing:.01em;
       white-space:pre-wrap;
       word-break:break-word;
     }
 
-    /* Popover picker */
+    /* Picker */
     .popover{
       position:fixed;
       z-index:1100;
-      width:880px;
+      width:920px;
       max-width: calc(100vw - 24px);
       max-height: calc(100vh - 24px);
       background:var(--panel2);
@@ -280,10 +275,7 @@
       justify-content:space-between;
       gap:12px;
     }
-    .pop-head .h{
-      font-weight:950;
-      font-size:18px;
-    }
+    .pop-head .h{ font-weight:950; font-size:18px; }
     .icon-btn{
       border:1px solid var(--border);
       background:var(--panel2);
@@ -294,10 +286,9 @@
     }
     .pop-body{
       display:grid;
-      grid-template-columns: 1fr 56px; /* list + kana index */
-      gap:0;
-      min-height:0;
+      grid-template-columns: 1fr 56px;
       height:560px;
+      min-height:0;
     }
     .pop-main{
       display:flex;
@@ -306,11 +297,7 @@
       padding:14px;
       gap:12px;
     }
-    .search-row{
-      display:flex;
-      gap:10px;
-      align-items:center;
-    }
+    .search-row{ display:flex; gap:10px; align-items:center; }
     input[type="text"]{
       width:100%;
       background:var(--panel2);
@@ -322,11 +309,7 @@
       font-weight:750;
       outline:none;
     }
-    .mini{
-      font-size:14px;
-      color:var(--muted);
-      font-weight:850;
-    }
+    .mini{ font-size:14px; color:var(--muted); font-weight:850; }
 
     .list{
       flex:1;
@@ -379,12 +362,7 @@
       border:1px solid color-mix(in srgb, var(--text) 18%, transparent);
       flex:0 0 auto;
     }
-    .pick-text{
-      display:flex;
-      flex-direction:column;
-      gap:2px;
-      min-width:0;
-    }
+    .pick-text{ display:flex; flex-direction:column; gap:2px; min-width:0; }
     .pick-text .label{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .pick-text .yomi{
       font-size:12px;
@@ -392,14 +370,12 @@
       font-weight:850;
       white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
     }
-
     .kana{
       border-left:1px solid var(--border);
       background: color-mix(in srgb, var(--panel) 55%, transparent);
       display:flex;
       flex-direction:column;
       align-items:center;
-      justify-content:flex-start;
       gap:10px;
       padding:12px 8px;
     }
@@ -419,7 +395,6 @@
       cursor:pointer;
     }
     .kana a:active{ transform:scale(.98); }
-
     .actions{
       display:flex;
       gap:10px;
@@ -435,7 +410,7 @@
       color: #ef4444;
     }
 
-    /* Settings (tabs) */
+    /* Settings modal (same as before, compact) */
     .backdrop{
       position:fixed; inset:0;
       background: rgba(0,0,0,.35);
@@ -489,10 +464,7 @@
       background: color-mix(in srgb, var(--accent) 14%, var(--panel));
       border-color: color-mix(in srgb, var(--accent) 35%, var(--border));
     }
-    .modal-body{
-      padding:16px;
-      overflow:auto;
-    }
+    .modal-body{ padding:16px; overflow:auto; }
     .section{ display:none; }
     .section.active{
       display:grid;
@@ -534,11 +506,7 @@
       font-weight:750;
       outline:none;
     }
-    .list2{
-      display:flex;
-      flex-direction:column;
-      gap:8px;
-    }
+    .list2{ display:flex; flex-direction:column; gap:8px; }
     .list-item{
       display:flex;
       align-items:center;
@@ -627,10 +595,8 @@
   </div>
 </div>
 
-<!-- Picker Popover -->
 <div class="popover" id="picker"></div>
 
-<!-- Settings Modal -->
 <div class="backdrop" id="backdrop">
   <div class="modal" role="dialog" aria-modal="true" aria-label="設定">
     <div class="modal-head">
@@ -640,13 +606,12 @@
 
     <div class="tabs" id="tabs">
       <div class="tab active" data-tab="display">表示</div>
-      <div class="tab" data-tab="ads">広告</div>
+      <div class="tab" data-tab="ads">ポスター</div>
       <div class="tab" data-tab="items">項目（読み方）</div>
       <div class="tab" data-tab="info">情報表示</div>
     </div>
 
     <div class="modal-body">
-      <!-- 表示 -->
       <div class="section active" id="tab-display">
         <div class="card">
           <h3>テーマ</h3>
@@ -666,7 +631,6 @@
         </div>
       </div>
 
-      <!-- 広告 -->
       <div class="section" id="tab-ads">
         <div class="card">
           <h3>切替</h3>
@@ -674,11 +638,11 @@
             <div class="pill">切替(秒)</div>
             <input type="number" id="adsInterval" min="1" value="6" />
           </div>
-          <div class="mini">上段の広告カード3枚が、登録URLから順に自動で切り替わります（デモ仕様）。</div>
+          <div class="mini">上段は2枚表示。登録URLの中から「2枚セット」を順に切り替えます。</div>
         </div>
 
         <div class="card">
-          <h3>広告画像URL</h3>
+          <h3>画像URL</h3>
           <div style="display:flex; gap:10px; align-items:center;">
             <input type="text" id="adUrl" placeholder="画像URLを追加" />
             <button class="btn primary" id="addAdBtn">追加</button>
@@ -687,7 +651,6 @@
         </div>
       </div>
 
-      <!-- 項目（読み方） -->
       <div class="section" id="tab-items">
         <div class="card">
           <h3>追加</h3>
@@ -706,7 +669,6 @@
             <input type="color" id="itemColor" title="個別色" />
             <button class="btn primary" id="addItemBtn">追加</button>
           </div>
-          <div class="mini">読み方の先頭で「あ/か/さ…」に分類され、選択ポップアップの索引ジャンプが効きます。</div>
         </div>
 
         <div class="card">
@@ -715,7 +677,6 @@
         </div>
       </div>
 
-      <!-- 情報表示 -->
       <div class="section" id="tab-info">
         <div class="card">
           <h3>タイトル</h3>
@@ -727,7 +688,7 @@
 
         <div class="card">
           <h3>（予約枠）</h3>
-          <div class="mini">将来的に「今日の予定」「天気」「安全標語」などの拡張も入れられます。</div>
+          <div class="mini">将来的に「今日の周知」「安全標語」「連絡事項」なども入れられます。</div>
         </div>
       </div>
     </div>
@@ -738,11 +699,10 @@
 (() => {
   const stage = document.getElementById('stage');
 
-  // --------- Utilities ---------
+  // utilities
   const pad2 = n => String(n).padStart(2,'0');
   const jpDow = ['日','月','火','水','木','金','土'];
 
-  // ひらがな・カタカナをざっくり正規化（デモ用）
   function toHiragana(str){
     return (str || '').trim().replace(/[\u30A1-\u30F6]/g, ch =>
       String.fromCharCode(ch.charCodeAt(0) - 0x60)
@@ -775,16 +735,10 @@
       .replaceAll("'","&#039;");
   }
 
-  // --------- State ---------
+  // state
   const state = {
     theme:'light',
-    typeColors:{
-      name:'#E8F0FF',
-      car:'#EAF7EF',
-      dest:'#FFF2E7',
-      custom:'#EEF2F7',
-      time:'#F3F4F6'
-    },
+    typeColors:{ name:'#E8F0FF', car:'#EAF7EF', dest:'#FFF2E7', custom:'#EEF2F7', time:'#F3F4F6' },
 
     items:{
       name:[
@@ -830,14 +784,14 @@
       'https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?auto=format&fit=crop&w=1600&q=80'
     ],
     adsIntervalSec:6,
-    adsIndex:0,
+    adsIndex:0,        // 2枚セットの先頭インデックス
     adsCountdown:6,
 
     infoTitle:'作業の注意',
     infoText:'安全第一\n足元注意\n立入禁止区域の確認'
   };
 
-  // --------- Clock ---------
+  // clock
   const clockEl = document.getElementById('clock');
   function tickClock(){
     const d = new Date();
@@ -846,7 +800,7 @@
   tickClock();
   setInterval(tickClock, 1000);
 
-  // --------- Theme ---------
+  // theme
   function setTheme(next){
     state.theme = next;
     stage.setAttribute('data-theme', next);
@@ -854,7 +808,7 @@
       next === 'dark' ? 'ライトに切替' : 'ダークに切替';
   }
 
-  // --------- Info render ---------
+  // info
   const infoTitleEl = document.getElementById('infoTitle');
   const infoTextEl  = document.getElementById('infoText');
   function renderInfo(){
@@ -863,26 +817,30 @@
   }
   renderInfo();
 
-  // --------- Ads render (3 cards, rotating) ---------
+  // ads (2枚)
   const adsRow = document.getElementById('adsRow');
   function renderAds(){
     adsRow.innerHTML = '';
-    const total = state.ads.length || 1;
-    for(let i=0;i<3;i++){
-      const idx = (state.adsIndex + i) % total;
+    const total = Math.max(state.ads.length, 1);
+
+    const idx1 = state.adsIndex % total;
+    const idx2 = (state.adsIndex + 1) % total;
+
+    [idx1, idx2].forEach(idx=>{
       const card = document.createElement('div');
       card.className = 'ad-card';
       const img = document.createElement('img');
       img.src = state.ads[idx] || '';
-      img.alt = 'ad';
+      img.alt = 'poster';
       card.appendChild(img);
       adsRow.appendChild(card);
-    }
+    });
   }
   function adsTick(){
     state.adsCountdown -= 1;
     if(state.adsCountdown <= 0){
-      state.adsIndex = (state.adsIndex + 1) % Math.max(state.ads.length, 1);
+      // 2枚セット単位で進める
+      state.adsIndex = (state.adsIndex + 2) % Math.max(state.ads.length, 1);
       state.adsCountdown = Math.max(1, Number(state.adsIntervalSec) || 6);
       renderAds();
     }
@@ -890,19 +848,16 @@
   renderAds();
   setInterval(adsTick, 1000);
 
-  // --------- Table ---------
+  // table
   const tbody = document.getElementById('tbody');
+  function chipBg(chip){ return chip.color || state.typeColors[chip.type] || '#EEF2F7'; }
 
-  function chipBg(chip){
-    return chip.color || state.typeColors[chip.type] || '#EEF2F7';
-  }
   function makeChip(chip, rowIndex, key, index){
     const el = document.createElement('div');
     el.className = 'chip' + (chip.type === 'time' ? ' time' : '');
     el.style.background = chipBg(chip);
     el.textContent = chip.label;
 
-    // chip単体削除（ポップアップで）
     if(chip.type !== 'time'){
       el.title = 'クリックで削除';
       el.addEventListener('click', (e)=>{
@@ -918,7 +873,7 @@
     cellDiv.innerHTML = '';
     if(key === 'time'){
       const v = state.rows[rowIndex].time;
-      if(!v){ return; }
+      if(!v) return;
       const chip = document.createElement('div');
       chip.className = 'chip time';
       chip.style.background = state.typeColors.time;
@@ -926,7 +881,6 @@
       cellDiv.appendChild(chip);
       return;
     }
-
     const arr = state.rows[rowIndex][key] || [];
     arr.forEach((c, idx)=> cellDiv.appendChild(makeChip(c,rowIndex,key,idx)));
   }
@@ -960,7 +914,7 @@
   }
   renderTable();
 
-  // --------- Picker (kana index + search) ---------
+  // picker
   const picker = document.getElementById('picker');
 
   function closePicker(){
@@ -1009,7 +963,6 @@
       if(!map.has(g)) map.set(g, []);
       map.get(g).push(it);
     });
-    // sort within group by yomi
     groupsOrder.forEach(k => {
       map.get(k).sort((a,b)=> (toHiragana(a.yomi)||'').localeCompare(toHiragana(b.yomi)||''));
     });
@@ -1017,8 +970,6 @@
   }
 
   function openItemPicker(rowIndex, key, rect){
-    // key=name -> name items
-    // key=dest -> dest + car items (両方置ける)
     let source = [];
     if(key === 'name'){
       source = state.items.name.map(x => ({...x, type:'name'}));
@@ -1126,7 +1077,6 @@
         listEl.appendChild(group);
       });
 
-      // kana index
       const kanaKeys = ['あ','か','さ','た','な','は','ま','や','ら','わ','#'];
       kanaEl.innerHTML = '';
       kanaKeys.forEach(k => {
@@ -1191,7 +1141,6 @@
       if(h!==20) times.push(`${pad2(h)}:30`);
     }
 
-    // simple 2-col grid
     const wrap = document.createElement('div');
     wrap.style.display = 'grid';
     wrap.style.gridTemplateColumns = '1fr 1fr';
@@ -1219,25 +1168,21 @@
     placePickerNearRect(rect);
   }
 
-  // --------- Settings Modal ---------
+  // settings modal
   const backdrop = document.getElementById('backdrop');
   const openSettingsBtn = document.getElementById('openSettingsBtn');
   const closeSettingsBtn = document.getElementById('closeSettingsBtn');
   const adsPanel = document.getElementById('adsPanel');
 
-  function openSettings(){
-    backdrop.classList.add('open');
-    syncSettingsUI();
-  }
-  function closeSettings(){
-    backdrop.classList.remove('open');
-  }
+  function openSettings(){ backdrop.classList.add('open'); syncSettingsUI(); }
+  function closeSettings(){ backdrop.classList.remove('open'); }
+
   openSettingsBtn.addEventListener('click', openSettings);
   closeSettingsBtn.addEventListener('click', closeSettings);
   adsPanel.addEventListener('click', openSettings);
   backdrop.addEventListener('click', (e)=>{ if(e.target === backdrop) closeSettings(); });
 
-  // Tabs
+  // tabs
   const tabs = document.getElementById('tabs');
   function setActiveTab(key){
     tabs.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === key));
@@ -1249,12 +1194,12 @@
     setActiveTab(el.dataset.tab);
   });
 
-  // Theme toggle
+  // theme toggle
   document.getElementById('themeToggleInSettings').addEventListener('click', ()=>{
     setTheme(state.theme === 'dark' ? 'light' : 'dark');
   });
 
-  // Colors
+  // colors
   const colorName = document.getElementById('colorName');
   const colorCar  = document.getElementById('colorCar');
   const colorDest = document.getElementById('colorDest');
@@ -1262,12 +1207,14 @@
   colorCar.addEventListener('input',  ()=>{ state.typeColors.car  = colorCar.value;  renderTable(); });
   colorDest.addEventListener('input', ()=>{ state.typeColors.dest = colorDest.value; renderTable(); });
 
-  // Ads
+  // posters interval
   const adsInterval = document.getElementById('adsInterval');
   adsInterval.addEventListener('change', ()=>{
     state.adsIntervalSec = Math.max(1, Number(adsInterval.value) || 6);
     state.adsCountdown = state.adsIntervalSec;
   });
+
+  // posters add/remove list
   document.getElementById('addAdBtn').addEventListener('click', ()=>{
     const url = (document.getElementById('adUrl').value || '').trim();
     if(!url) return;
@@ -1301,12 +1248,10 @@
     });
   }
 
-  // Items (label + yomi)
+  // items list
   const itemType = document.getElementById('itemType');
   const itemColor = document.getElementById('itemColor');
-  function syncItemColorDefault(){
-    itemColor.value = state.typeColors[itemType.value] || '#EEF2F7';
-  }
+  function syncItemColorDefault(){ itemColor.value = state.typeColors[itemType.value] || '#EEF2F7'; }
   itemType.addEventListener('change', syncItemColorDefault);
 
   document.getElementById('addItemBtn').addEventListener('click', ()=>{
@@ -1366,7 +1311,7 @@
     });
   }
 
-  // Info edit
+  // info edit
   const infoTitleInput = document.getElementById('infoTitleInput');
   const infoTextInput  = document.getElementById('infoTextInput');
   document.getElementById('applyInfoBtn').addEventListener('click', ()=>{
@@ -1376,24 +1321,19 @@
   });
 
   function syncSettingsUI(){
-    // theme
     document.getElementById('themeToggleInSettings').textContent =
       state.theme === 'dark' ? 'ライトに切替' : 'ダークに切替';
 
-    // colors
     colorName.value = state.typeColors.name;
     colorCar.value  = state.typeColors.car;
     colorDest.value = state.typeColors.dest;
 
-    // ads
     adsInterval.value = state.adsIntervalSec;
     renderAdList();
 
-    // items
     syncItemColorDefault();
     renderItemList();
 
-    // info
     infoTitleInput.value = state.infoTitle;
     infoTextInput.value  = state.infoText;
   }
